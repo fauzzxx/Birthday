@@ -1,0 +1,690 @@
+/* ==========================================================================
+   CHAPTER 12 — A letter from your son
+   Burgundy velvet, one pool of light, an ivory envelope that opens into the
+   letter itself. Phases live on .ch12-desk[data-phase]: sealed → opening → open.
+   ========================================================================== */
+
+.ch12 {
+  --ch12-ink: #2b1f1d;
+  --ch12-ink-soft: #5b4741;
+  --ch12-ink-wine: #64263a;
+  --ch12-paper: #f8f1e4;
+  --ch12-envelope: #f2e8d7;
+  /* Fine warm speckle (paper tooth). */
+  --ch12-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36  0 0 0 0 0.26  0 0 0 0 0.18  0 0 0 0.5 -0.18'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Long, faint fibres. */
+  --ch12-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.55' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.32  0 0 0 0 0.22  0 0 0 0.9 -0.54'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* Soft mottled sheen of velvet. */
+  --ch12-velvet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='v'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 0.82  0 0 0 0 0.86  0 0 0 0.5 -0.22'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23v)'/%3E%3C/svg%3E");
+  /* The envelope's lining: deep burgundy with a whisper of gold lattice. */
+  --ch12-liner: linear-gradient(180deg, rgba(12, 2, 6, 0.45), transparent 55%),
+    repeating-linear-gradient(45deg, rgba(212, 178, 115, 0.24) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(-45deg, rgba(212, 178, 115, 0.24) 0 1px, transparent 1px 11px),
+    linear-gradient(#5d1d33, #4a1527);
+  overflow-x: clip;
+}
+
+/* ── Atmosphere ──────────────────────────────────────────── */
+
+.ch12-velvet {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(56rem 34rem at 50% 24rem, rgba(150, 56, 84, 0.42), transparent 72%),
+    linear-gradient(180deg, rgba(10, 2, 6, 0.32), transparent 16%, transparent 86%, rgba(10, 2, 6, 0.3)),
+    var(--ch12-velvet);
+  background-size:
+    auto,
+    auto,
+    400px 400px;
+}
+
+.ch12-dust {
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(115vh, 72rem);
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 65%, transparent);
+  mask-image: linear-gradient(180deg, #000 65%, transparent);
+}
+
+/* ── The desk: envelope stage and paper share one grid cell ── */
+
+.ch12-read {
+  position: relative;
+}
+
+.ch12-desk {
+  --ch12-env-w: min(30rem, 100%);
+  --ch12-paper-w: min(100%, 46rem);
+  --ch12-photo-w: clamp(6.25rem, 24vw, 10rem);
+  --ch12-photo-lift: clamp(1.75rem, 4vw, 2.75rem);
+  --ch12-pad-x: clamp(1.25rem, 6vw, 4.5rem);
+  --ch12-pad-top: clamp(2.25rem, 6vw, 4.5rem);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-areas: 'stack';
+  justify-items: center;
+  align-items: start;
+}
+
+/* One soft spot of light on the velvet, centred on the envelope. */
+.ch12-spot {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: calc(var(--ch12-env-w) * 2.3);
+  aspect-ratio: 1;
+  left: calc(50% - var(--ch12-env-w) * 1.15);
+  top: calc(var(--ch12-env-w) * -0.44);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 226, 196, 0.22),
+    rgba(214, 130, 140, 0.09) 45%,
+    transparent 75%
+  );
+}
+
+.ch12-stage {
+  grid-area: stack;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--ch12-env-w) * 0.4);
+}
+
+.ch12-desk[data-phase='open'] .ch12-stage {
+  visibility: hidden;
+}
+
+.ch12-actions {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  display: flex;
+  justify-content: center;
+}
+
+.ch12-open {
+  min-width: min(100%, 15rem);
+}
+
+/* ── The envelope ────────────────────────────────────────── */
+/* No transform / opacity / filter on .ch12-env itself: its layers must stay in
+   the desk's stacking context so the photo and sheet can slip between them. */
+
+.ch12-env {
+  position: relative;
+  width: var(--ch12-env-w);
+  aspect-ratio: 1.6;
+  -webkit-tap-highlight-color: transparent;
+}
+.ch12-desk[data-phase='sealed'] .ch12-env {
+  cursor: pointer;
+}
+
+.ch12-env > * {
+  position: absolute;
+}
+
+.ch12-env-back {
+  inset: 0;
+  z-index: 1;
+  border-radius: 2px;
+  background: var(--ch12-liner);
+  box-shadow:
+    0 2px 3px rgba(12, 2, 6, 0.35),
+    0 28px 54px -18px rgba(8, 0, 4, 0.78);
+}
+
+.ch12-flap {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 58%;
+  z-index: 6;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 2px 1.5px rgba(70, 36, 24, 0.28));
+}
+
+.ch12-flap-face,
+.ch12-flap-inner,
+.ch12-flap-shade {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 53.5% 95%, 50% 100%, 46.5% 95%);
+}
+
+.ch12-flap-face {
+  background-color: var(--ch12-envelope);
+  background-image: var(--ch12-grain), linear-gradient(180deg, #f8f0e3 0%, #f0e5d2 70%, #e9dcc5 100%);
+}
+
+.ch12-flap-inner {
+  opacity: 0;
+  background: var(--ch12-liner);
+}
+
+.ch12-flap-shade {
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(40, 14, 10, 0.05), rgba(40, 14, 10, 0.42));
+}
+
+.ch12-pocket {
+  inset: 0;
+  z-index: 5;
+  filter: drop-shadow(0 -1px 1.2px rgba(70, 36, 24, 0.24));
+}
+
+.ch12-pocket-l,
+.ch12-pocket-r,
+.ch12-pocket-b {
+  position: absolute;
+  inset: 0;
+  background-color: var(--ch12-envelope);
+}
+.ch12-pocket-l {
+  clip-path: polygon(0 0, 50% 53%, 0 100%);
+  background-image: var(--ch12-grain), linear-gradient(90deg, #ebdfca, #f3e9d9);
+}
+.ch12-pocket-r {
+  clip-path: polygon(100% 0, 50% 53%, 100% 100%);
+  background-image: var(--ch12-grain), linear-gradient(270deg, #e9ddc7, #f4ebdc);
+}
+.ch12-pocket-b {
+  clip-path: polygon(0 100%, 46.5% 49.5%, 50% 47.6%, 53.5% 49.5%, 100% 100%);
+  background-image: var(--ch12-grain), linear-gradient(180deg, #f7efe2, #eee3d0);
+}
+
+.ch12-pocket-edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ch12-env-to {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: clamp(1.45rem, 7vw, 2.4rem);
+  line-height: 1;
+  color: #4b2a2c;
+  transform: rotate(-3deg);
+}
+
+/* The wax seal sits on the flap's tip. */
+.ch12-seal {
+  z-index: 7;
+  width: 20%;
+  aspect-ratio: 1;
+  left: 40%;
+  top: 42%;
+  filter: drop-shadow(0 3px 3px rgba(20, 2, 8, 0.45));
+}
+.ch12-desk[data-phase='sealed'] .ch12-seal {
+  transition: transform 600ms var(--ease-out);
+}
+.ch12-desk[data-phase='sealed'] .ch12-env:hover .ch12-seal {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.ch12-seal-half {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ch12-seal-half--l {
+  clip-path: polygon(0 0, 53% 0, 47% 22%, 55% 41%, 46% 60%, 54% 79%, 49% 100%, 0 100%);
+}
+.ch12-seal-half--r {
+  clip-path: polygon(53% 0, 100% 0, 100% 100%, 49% 100%, 54% 79%, 46% 60%, 55% 41%, 47% 22%);
+}
+
+/* ── The folded letter inside ────────────────────────────── */
+
+.ch12-sheet {
+  left: 9%;
+  width: 82%;
+  top: 15%;
+  height: 75%;
+  z-index: 3;
+  visibility: hidden;
+  perspective: 1600px;
+}
+.ch12-desk[data-phase='opening'] .ch12-sheet {
+  visibility: visible;
+}
+
+.ch12-sheet-shadow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  box-shadow:
+    0 2px 3px rgba(20, 4, 10, 0.18),
+    0 22px 44px -18px rgba(14, 2, 6, 0.6);
+}
+
+.ch12-sheet-face {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-color: var(--ch12-paper);
+  background-image: var(--ch12-grain), linear-gradient(180deg, #fbf6ec, #f4ecdd);
+}
+.ch12-sheet-mid {
+  top: 0;
+}
+.ch12-sheet-top {
+  bottom: 100%;
+  transform-origin: 50% 100%;
+}
+.ch12-sheet-bot {
+  top: 100%;
+  transform-origin: 50% 0;
+}
+
+.ch12-sheet-shade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.ch12-sheet-top .ch12-sheet-shade {
+  background: linear-gradient(0deg, rgba(60, 30, 20, 0.34), transparent 75%);
+}
+.ch12-sheet-bot .ch12-sheet-shade {
+  background: linear-gradient(180deg, rgba(60, 30, 20, 0.34), transparent 75%);
+}
+
+/* Abstract strokes of writing — never real words. */
+.ch12-sheet-lines {
+  position: absolute;
+  inset: 16% 11% 12%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0;
+}
+.ch12-sheet-line {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(60, 36, 32, 0.2);
+}
+
+/* ── The letter itself ───────────────────────────────────── */
+
+.ch12-paperwrap {
+  grid-area: stack;
+  position: relative;
+  z-index: 9;
+  width: var(--ch12-paper-w);
+}
+.ch12-paperwrap[hidden] {
+  display: none;
+}
+
+.ch12-paper-shadow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    0 2px 2px rgba(20, 4, 10, 0.12),
+    0 26px 52px -18px rgba(14, 2, 6, 0.62),
+    0 70px 120px -40px rgba(14, 2, 6, 0.5);
+}
+.ch12-desk[data-phase='opening'] .ch12-paper-shadow {
+  opacity: 0;
+}
+
+.ch12-paper {
+  position: relative;
+  padding: var(--ch12-pad-top) var(--ch12-pad-x) clamp(2.75rem, 7vw, 5rem);
+  color: var(--ch12-ink);
+  background-color: var(--ch12-paper);
+  background-image:
+    var(--ch12-fibre),
+    var(--ch12-grain),
+    radial-gradient(120% 40rem at 50% 0%, rgba(255, 255, 255, 0.5), transparent 70%),
+    linear-gradient(90deg, rgba(150, 110, 60, 0.07), transparent 7%, transparent 93%, rgba(150, 110, 60, 0.07));
+  background-size:
+    300px 300px,
+    160px 160px,
+    auto,
+    auto;
+  overflow-wrap: break-word;
+}
+.ch12-desk[data-phase='opening'] .ch12-paper {
+  clip-path: inset(0 0 100% 0);
+}
+
+.ch12-paper-body {
+  max-width: 37rem;
+  margin-inline: auto;
+}
+
+.ch12-head {
+  margin-bottom: clamp(0.85rem, 2.5vw, 1.5rem);
+}
+
+/* Reserve room under the tucked photograph where it overlaps the paper's corner. */
+.ch12-paper--photo .ch12-head {
+  min-height: calc(var(--ch12-photo-w) * 1.42 - var(--ch12-photo-lift) - var(--ch12-pad-top) + 0.75rem);
+  padding-right: max(0px, calc(var(--ch12-photo-w) - var(--ch12-pad-x)));
+}
+
+.ch12-salutation {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-5);
+  line-height: 1.05;
+  color: var(--ch12-ink-wine);
+}
+
+.ch12-p {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.2rem, 1.08rem + 0.55vw, 1.6rem);
+  line-height: 1.62;
+  color: var(--ch12-ink);
+  text-wrap: pretty;
+}
+.ch12-p + .ch12-p {
+  margin-top: 1em;
+}
+.ch12-p.ch12-p--coda {
+  margin-top: 1.5em;
+  font-size: clamp(1.28rem, 1.14rem + 0.6vw, 1.72rem);
+  line-height: 1.5;
+}
+.ch12-p.ch12-p--coda-first {
+  margin-top: 2.6em;
+}
+
+.ch12-sign {
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+.ch12-signoff {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: var(--step-1);
+  color: var(--ch12-ink-soft);
+}
+.ch12-signature {
+  margin-top: 0.15em;
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-4);
+  line-height: 1.1;
+  color: var(--ch12-ink-wine);
+}
+.ch12-name {
+  margin-top: 0.5rem;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ch12-ink-soft);
+}
+
+/* Hidden until the ceremony brings them in. */
+.ch12-desk[data-phase='opening'] .ch12-salutation,
+.ch12-desk[data-phase='opening'] .ch12-reveal {
+  opacity: 0;
+}
+
+/* ── The tucked photograph ───────────────────────────────── */
+
+.ch12-tucked {
+  position: absolute;
+  z-index: 11;
+  width: var(--ch12-photo-w);
+  top: calc(-1 * var(--ch12-photo-lift));
+  right: calc((100% - var(--ch12-paper-w)) / 2 - 0.25rem);
+}
+.ch12-desk[data-phase='sealed'] .ch12-tucked {
+  visibility: hidden;
+}
+
+@media (min-width: 1240px) {
+  /* Room to rest beside the letter rather than on its corner. */
+  .ch12-tucked {
+    --ch12-photo-w: clamp(10rem, 14vw, 13rem);
+    top: clamp(2.5rem, 5vw, 4.5rem);
+    right: auto;
+    left: calc(50% + var(--ch12-paper-w) / 2 + 1.75rem);
+  }
+  .ch12-paper--photo .ch12-head {
+    min-height: 0;
+    padding-right: 0;
+  }
+}
+
+/* ── After the letter ────────────────────────────────────── */
+
+.ch12-after {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+/* ── Keepsake view (native dialog) ───────────────────────── */
+
+.ch12-keepsake {
+  --fg: var(--ch12-ink);
+  --fg-soft: var(--ch12-ink-soft);
+  --accent: var(--gold-ink);
+  --accent-deco: var(--gold-ink);
+  --focus: var(--burgundy);
+  width: min(44rem, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--ch12-ink);
+  background: #fbf7f0;
+  color-scheme: light;
+  box-shadow: 0 40px 90px -24px rgba(0, 0, 0, 0.65);
+}
+.ch12-keepsake::backdrop {
+  background: rgba(22, 6, 12, 0.74);
+}
+
+.ch12-keepsake-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem clamp(0.75rem, 4vw, 2rem);
+  background: rgba(251, 247, 240, 0.95);
+  border-bottom: 1px solid rgba(125, 94, 47, 0.2);
+}
+
+.ch12-keepsake .btn {
+  --btn-fill: var(--gold-pale);
+  color: var(--ch12-ink);
+}
+.ch12-keepsake .btn:hover:not(:disabled) {
+  color: var(--ch12-ink);
+}
+
+.ch12-keepsake-print {
+  font-size: var(--step--2);
+  padding-inline: 1.2em;
+}
+
+.ch12-keepsake-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ch12-ink);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.ch12-keepsake-close:hover {
+  background: rgba(125, 94, 47, 0.12);
+}
+.ch12-keepsake-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ch12-keepsake-sheet {
+  padding: clamp(1.5rem, 6vw, 3.5rem) clamp(1.25rem, 7vw, 4rem) clamp(2.5rem, 7vw, 4rem);
+  font-family: var(--font-display);
+  overflow-wrap: break-word;
+}
+.ch12-keep-to {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(125, 94, 47, 0.28);
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.ch12-keep-sal {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-4);
+  line-height: 1.1;
+  color: var(--ch12-ink-wine);
+  margin-bottom: 1rem;
+}
+.ch12-keep-p {
+  font-weight: 500;
+  font-size: clamp(1.12rem, 1.04rem + 0.4vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--ch12-ink);
+}
+.ch12-keep-p + .ch12-keep-p {
+  margin-top: 0.9em;
+}
+.ch12-keep-p.ch12-keep-p--coda {
+  margin-top: 1.3em;
+}
+.ch12-keep-p.ch12-keep-p--coda-first {
+  margin-top: 2.2em;
+}
+.ch12-keep-sign {
+  margin-top: 2.25rem;
+}
+.ch12-keep-signoff {
+  font-style: italic;
+  font-weight: 500;
+  font-size: var(--step-1);
+  color: var(--ch12-ink-soft);
+}
+.ch12-keep-signature {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-3);
+  line-height: 1.15;
+  color: var(--ch12-ink-wine);
+}
+.ch12-keep-name {
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ch12-ink-soft);
+}
+
+/* ── Print: the keepsake on paper (print.css shows only .keepsake-print) ── */
+
+@media print {
+  .ch12-print {
+    font-family: var(--font-display);
+    font-size: 13pt;
+    line-height: 1.55;
+    color: #1d1412;
+    background: none;
+  }
+  .ch12-print-to {
+    margin: 0 0 18pt;
+    padding-bottom: 7pt;
+    border-bottom: 0.5pt solid #b9a58a;
+    font-family: var(--font-body);
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #6b5a52;
+  }
+  .ch12-print-sal {
+    margin: 0 0 12pt;
+    font-family: var(--font-hand);
+    font-weight: 500;
+    font-size: 26pt;
+    line-height: 1.1;
+    color: #1d1412;
+  }
+  .ch12-print-p {
+    margin: 0 0 9pt;
+    font-weight: 500;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+  .ch12-print-p--coda {
+    margin-top: 12pt;
+  }
+  .ch12-print-p--coda-first {
+    margin-top: 20pt;
+  }
+  .ch12-print-sign {
+    margin-top: 24pt;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .ch12-print-signoff {
+    margin: 0;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .ch12-print-signature {
+    margin: 2pt 0 0;
+    font-family: var(--font-hand);
+    font-weight: 500;
+    font-size: 22pt;
+    line-height: 1.15;
+  }
+  .ch12-print-name {
+    margin: 4pt 0 0;
+    font-family: var(--font-body);
+    font-size: 8.5pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #4a3a34;
+  }
+}

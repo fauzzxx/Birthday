@@ -1,0 +1,413 @@
+/* ==========================================================================
+   CHAPTER 13 — Today, the world celebrates you
+   Burgundy deepening to wine; gold light, ivory, dusty rose. Nothing else.
+   ========================================================================== */
+
+.ch13 {
+  background-image: linear-gradient(
+    180deg,
+    var(--theme-burgundy-bg) 0%,
+    #34101f 28%,
+    #280c18 64%,
+    #1c0711 100%
+  );
+  overflow-x: clip;
+}
+
+/* ── Atmosphere ──────────────────────────────────────────── */
+
+.ch13-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(64rem 34rem at 50% 18rem, rgba(201, 164, 106, 0.14), transparent 70%),
+    radial-gradient(70rem 46rem at 50% 100%, rgba(122, 32, 62, 0.32), transparent 70%);
+}
+
+/* Rising points of light, kept to two bounded areas (not the whole tall scene). */
+.ch13-dust {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.ch13-dust--top {
+  top: 0;
+  height: min(150vh, 90rem);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+}
+.ch13-dust--end {
+  bottom: 0;
+  height: min(130vh, 80rem);
+}
+
+/* ── The greeting ────────────────────────────────────────── */
+
+.ch13-top {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.ch13-thread {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: clamp(4.5rem, 12vh, 8rem);
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+}
+.ch13-hairline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(201, 164, 106, 0), var(--gold-light) 60%, var(--gold));
+  box-shadow: 0 0 6px rgba(233, 196, 128, 0.45);
+}
+.ch13-bead {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  margin: 0 0 -6px -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6e2 0 26%, rgba(232, 210, 164, 0.85) 44%, rgba(201, 164, 106, 0) 74%);
+}
+.ch13-bead::after {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 196, 128, 0.42), transparent 68%);
+  animation: ch13-breathe 4.2s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes ch13-breathe {
+  from {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.ch13-top .chapter__head {
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+
+.ch13-greeting {
+  max-width: 14ch;
+  margin-inline: auto;
+  color: var(--gold-light);
+  text-shadow: 0 0 0.5em rgba(233, 196, 128, 0.24);
+}
+
+.ch13-message {
+  max-width: 34ch;
+  margin: clamp(1.5rem, 4vw, 2.5rem) auto 0;
+  color: var(--fg-soft);
+}
+
+/* ── The cake ────────────────────────────────────────────── */
+
+.ch13-cake {
+  display: grid;
+  justify-items: center;
+  margin-top: clamp(4.5rem, 11vw, 8.5rem);
+  text-align: center;
+}
+
+.ch13-cake-figure {
+  position: relative;
+  width: min(100%, 27rem);
+  margin: 0;
+}
+
+.ch13-cake-glow {
+  position: absolute;
+  left: -38%;
+  right: -38%;
+  top: -28%;
+  bottom: 8%;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side at 50% 40%,
+    rgba(255, 200, 135, 0.34),
+    rgba(214, 120, 100, 0.12) 52%,
+    transparent 80%
+  );
+  opacity: 0.22;
+}
+.ch13-cake[data-state='lit'] .ch13-cake-glow,
+.ch13-cake[data-state='blowing'] .ch13-cake-glow {
+  opacity: 1;
+}
+.ch13-cake[data-state='wished'] .ch13-cake-glow {
+  opacity: 0.32;
+}
+
+.ch13-cake-svg {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* End states (timelines animate between them). */
+.ch13-flame,
+.ch13-halo,
+.ch13-spark,
+.ch13-smoke,
+.ch13-burst {
+  opacity: 0;
+}
+.ch13-cake[data-state='lit'] .ch13-flame,
+.ch13-cake[data-state='lit'] .ch13-halo,
+.ch13-cake[data-state='blowing'] .ch13-flame,
+.ch13-cake[data-state='blowing'] .ch13-halo {
+  opacity: 1;
+}
+
+/* The flicker: small, organic, only while lit and on screen. */
+.ch13-flame-core {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.ch13-halo-core {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.ch13-cake[data-onscreen='true']:is([data-state='lighting'], [data-state='lit'], [data-state='blowing'])
+  .ch13-flame-core {
+  animation: ch13-flicker var(--fd, 1.8s) var(--ease-in-out) var(--fdelay, 0s) infinite alternate;
+}
+.ch13-cake[data-onscreen='true']:is([data-state='lighting'], [data-state='lit'], [data-state='blowing'])
+  .ch13-halo-core {
+  animation: ch13-halo 2.6s var(--ease-in-out) var(--fdelay, 0s) infinite alternate;
+}
+
+@keyframes ch13-flicker {
+  0% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  30% {
+    transform: scale(0.95, 1.06) skewX(2deg);
+  }
+  55% {
+    transform: scale(1.03, 0.97) skewX(-1.5deg);
+  }
+  80% {
+    transform: scale(0.97, 1.04) skewX(1deg);
+  }
+  100% {
+    transform: scale(1.02, 0.99) skewX(-2deg);
+  }
+}
+
+@keyframes ch13-halo {
+  from {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.ch13-cake-status {
+  display: grid;
+  place-items: center;
+  min-height: 3.6rem;
+  margin-top: var(--space-xs);
+}
+
+.ch13-wish {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-3);
+  line-height: 1.2;
+  color: var(--gold-light);
+  animation: ch13-wish-in 1.6s var(--ease-out) both;
+}
+
+@keyframes ch13-wish-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.ch13-cake-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-2xs);
+}
+
+.ch13-cake-btn {
+  min-width: min(100%, 16rem);
+}
+
+/* ── The collage ─────────────────────────────────────────── */
+
+.ch13-gallery {
+  margin-top: clamp(5.5rem, 13vw, 10rem);
+}
+
+.ch13-collage {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2;
+  column-gap: clamp(0.75rem, 3vw, 1.25rem);
+}
+
+.ch13-print {
+  break-inside: avoid;
+  margin-bottom: clamp(0.75rem, 3vw, 1.25rem);
+}
+
+@media (max-width: 899.98px) {
+  /* Tidy on small screens: the tilts become a gentle hint. */
+  .ch13-print .photo {
+    transform: rotate(calc(var(--tilt, 0deg) * 0.35));
+  }
+}
+
+@media (min-width: 900px) {
+  .ch13-collage {
+    position: relative;
+    columns: auto;
+    aspect-ratio: var(--ch13-ratio, 100 / 58);
+  }
+  .ch13-print {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    width: calc(var(--w) * 1%);
+    margin: 0;
+  }
+  .ch13-print:hover,
+  .ch13-print:focus-within {
+    z-index: 20;
+  }
+}
+
+.ch13-album {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(2.25rem, 5vw, 3.5rem);
+}
+
+/* ── The final photograph ────────────────────────────────── */
+
+.ch13-final {
+  width: min(100%, 34rem);
+  margin: clamp(6rem, 14vw, 11rem) auto 0;
+}
+
+/* ── Closing ─────────────────────────────────────────────── */
+
+.ch13-closing {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  margin-top: clamp(5rem, 12vw, 9rem);
+}
+
+.ch13-closing-lead {
+  max-width: 30ch;
+  color: var(--fg-soft);
+}
+
+.ch13-finalline {
+  max-width: 24ch;
+  margin: clamp(5rem, 14vw, 10rem) auto;
+  color: var(--fg);
+}
+
+.ch13-blessing {
+  max-width: 36ch;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--fg-soft);
+  text-wrap: balance;
+}
+
+.ch13-sign {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  margin-top: clamp(3rem, 8vw, 5rem);
+}
+.ch13-signoff {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--fg-soft);
+}
+.ch13-signature {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-5);
+  line-height: 1.05;
+  color: var(--gold-light);
+}
+.ch13-name {
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+
+/* ── The end ─────────────────────────────────────────────── */
+
+.ch13-end {
+  display: grid;
+  justify-items: center;
+  gap: clamp(2rem, 5vw, 3rem);
+  margin-top: clamp(4.5rem, 11vw, 8rem);
+}
+
+.ch13-endrule {
+  position: relative;
+  display: block;
+  width: min(16rem, 60%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232, 210, 164, 0.75), transparent);
+}
+.ch13-endbead {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6e2 0 26%, rgba(232, 210, 164, 0.85) 46%, rgba(201, 164, 106, 0) 76%);
+}
+.ch13-endbead::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 196, 128, 0.38), transparent 68%);
+  animation: ch13-breathe 4.8s var(--ease-in-out) infinite alternate;
+}

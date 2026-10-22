@@ -1,0 +1,924 @@
+/* ==========================================================================
+   CHAPTER 04 — Our little world
+   An evening room: lamp light on one side, an old television's blue glow on
+   the other, a warm bowl, family prints on the wall. The TV is drawn in
+   container units (cqi) of .ch04-tv so it scales as one object.
+   ========================================================================== */
+
+.ch04 {
+  --ch04-tv-light: 143, 183, 217; /* --tv-blue as an RGB triplet */
+  --ch04-lamp-light: 255, 186, 110;
+}
+
+/* The TV's light reaching the whole room. Follows the TV state. */
+.ch04-roomglow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(80% 32% at 45% 52%, rgba(var(--ch04-tv-light), 0.12), transparent 70%);
+  opacity: 0;
+  transition: opacity 1.4s var(--ease-soft);
+}
+.ch04--on .ch04-roomglow {
+  opacity: 1;
+  transition-delay: 0.25s;
+}
+@media (min-width: 900px) {
+  .ch04-roomglow {
+    background: radial-gradient(55% 45% at 66% 50%, rgba(var(--ch04-tv-light), 0.13), transparent 70%);
+  }
+}
+
+/* ── Layout & words ───────────────────────────────────────── */
+
+.ch04-layout {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.ch04-text {
+  max-width: 30rem;
+}
+
+.ch04-beat + .ch04-beat {
+  margin-top: var(--space-m);
+}
+
+.ch04-beat--first {
+  font-size: var(--step-3);
+  font-style: italic;
+  line-height: 1.2;
+}
+
+@media (min-width: 900px) {
+  .ch04-layout {
+    grid-template-columns: minmax(15rem, 0.78fr) minmax(0, 1.5fr);
+    align-items: center;
+    column-gap: clamp(2rem, 5vw, 5rem);
+  }
+}
+
+/* ── The scene: room (TV, cabinet, bowl), wall prints, control ── */
+
+.ch04-scene {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'room'
+    'ctrl'
+    'wall';
+}
+
+.ch04-glow,
+.ch04-room {
+  grid-area: room;
+}
+
+.ch04-room {
+  position: relative;
+  z-index: 2;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+/* The TV's cool light on the wall behind it. */
+.ch04-glow {
+  --gx: 39%;
+  --gy: 50%;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.1s var(--ease-soft);
+}
+.ch04-glow::before {
+  content: '';
+  position: absolute;
+  inset: -18% 0;
+  background: radial-gradient(
+    46% 44% at var(--gx) var(--gy),
+    rgba(var(--ch04-tv-light), 0.34),
+    rgba(var(--ch04-tv-light), 0.1) 55%,
+    transparent 100%
+  );
+  animation: ch04-glow-breathe 4.6s var(--ease-in-out) infinite alternate;
+  animation-play-state: paused;
+}
+.ch04--on .ch04-glow {
+  opacity: 1;
+  transition-delay: 0.2s;
+}
+.ch04--on .ch04-scene[data-visible='true'] .ch04-glow::before {
+  animation-play-state: running;
+}
+
+@keyframes ch04-glow-breathe {
+  from {
+    opacity: 0.82;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ch04-wall {
+  grid-area: wall;
+}
+
+.ch04-controls {
+  grid-area: ctrl;
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-l);
+}
+
+/* Phones & tablets: TV first, its control, then the prints two-up. */
+@media (max-width: 899.98px) {
+  .ch04-wall {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: var(--space-l) var(--space-m);
+    margin-top: var(--space-xl);
+    padding-inline: var(--space-3xs);
+  }
+  .ch04-frame--c {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 48%;
+  }
+  .ch04-frame__string,
+  .ch04-frame__nail {
+    display: none;
+  }
+}
+
+/* Desktop: prints hang on the wall around the set; subtle pointer depth. */
+@media (min-width: 900px) {
+  .ch04-scene {
+    grid-template-areas:
+      'room'
+      'ctrl';
+  }
+  .ch04-wall {
+    grid-area: room;
+    position: relative;
+    z-index: 1;
+  }
+  .ch04-room {
+    aspect-ratio: 4 / 3;
+  }
+  .ch04-glow {
+    --gx: 50%;
+    --gy: 53%;
+  }
+
+  .ch04-frame {
+    position: absolute;
+    transform: translate3d(
+      calc(var(--px, 0) * var(--depth, 8) * 1px),
+      calc(var(--py, 0) * var(--depth, 8) * 0.6px),
+      0
+    );
+  }
+  .ch04-frame--a {
+    left: 1%;
+    top: 5%;
+    width: 28%;
+  }
+  .ch04-frame--b {
+    right: 1%;
+    top: 10%;
+    width: 30%;
+  }
+  /* (only while a placeholder is visible) standing on the cabinet */
+  .ch04-frame--c {
+    left: 10%;
+    bottom: 22.4%;
+    width: 13%;
+  }
+  .ch04-frame--c .ch04-frame__string,
+  .ch04-frame--c .ch04-frame__nail {
+    display: none;
+  }
+}
+
+/* ── Framed prints ────────────────────────────────────────── */
+
+.ch04-frame__hang {
+  position: relative;
+  transform: rotate(var(--tilt, 0deg));
+  transform-origin: 50% 0;
+}
+
+.ch04-frame__wood {
+  padding: clamp(4px, 0.5vw, 7px);
+  border-radius: 2px;
+  background: linear-gradient(135deg, #7a4a2c, #4a2a19 60%, #5e3720);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 220, 180, 0.12),
+    0 14px 26px -10px rgba(0, 0, 0, 0.65);
+}
+.ch04-frame__wood > .photo {
+  box-shadow: inset 0 0 0 1px rgba(40, 20, 10, 0.12);
+}
+
+.ch04-frame__string {
+  position: absolute;
+  left: 10%;
+  bottom: 100%;
+  width: 80%;
+  height: 1.5rem;
+  overflow: visible;
+}
+.ch04-frame__string path {
+  fill: none;
+  stroke: rgba(201, 164, 106, 0.5);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.ch04-frame__nail {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 1.5rem - 4px);
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #b9a585;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Furniture placement ──────────────────────────────────── */
+
+.ch04-cabinet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20%;
+}
+.ch04-tv {
+  position: absolute;
+  left: 1%;
+  width: 76%;
+  bottom: 19.5%;
+}
+.ch04-meal {
+  position: absolute;
+  right: 1%;
+  bottom: 19.5%;
+  width: 19%;
+}
+
+@media (min-width: 900px) {
+  .ch04-cabinet {
+    left: 7%;
+    right: 7%;
+    height: 23%;
+  }
+  .ch04-tv {
+    left: 28%;
+    width: 44%;
+    bottom: 22.5%;
+  }
+  .ch04-meal {
+    right: 10%;
+    bottom: 22.5%;
+    width: 12%;
+  }
+}
+
+/* ── The low cabinet ──────────────────────────────────────── */
+
+.ch04-cabinet {
+  border-radius: 3px 3px 2px 2px;
+  background:
+    linear-gradient(90deg, rgba(var(--ch04-lamp-light), 0.12), transparent 32%),
+    linear-gradient(to bottom, #6f4a33 0 11%, #2a1910 11% 13.5%, transparent 13.5%),
+    radial-gradient(circle at 46% 58%, #c9a46a 0 1.4%, transparent 1.7%),
+    radial-gradient(circle at 54% 58%, #c9a46a 0 1.4%, transparent 1.7%),
+    linear-gradient(90deg, transparent 49.7%, rgba(0, 0, 0, 0.5) 49.7% 50.3%, transparent 50.3%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.07) 0 2px, transparent 2px 11px),
+    linear-gradient(180deg, #4a2e1f, #352015);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 180, 0.18),
+    0 22px 30px -18px rgba(0, 0, 0, 0.75);
+}
+/* little legs */
+.ch04-cabinet::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 100%;
+  height: 7px;
+  background: linear-gradient(90deg, #24150e 0 3%, transparent 3% 97%, #24150e 97%);
+}
+
+/* The screen's light falling on the cabinet top. */
+.ch04-cabinet__sheen {
+  position: absolute;
+  left: 8%;
+  width: 62%;
+  top: -10%;
+  height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(var(--ch04-tv-light), 0.42), transparent);
+  opacity: 0;
+  transition: opacity 1.1s var(--ease-soft);
+}
+.ch04--on .ch04-cabinet__sheen {
+  opacity: 1;
+  transition-delay: 0.2s;
+}
+@media (min-width: 900px) {
+  .ch04-cabinet__sheen {
+    left: 22%;
+    width: 56%;
+  }
+}
+
+/* ── The television ───────────────────────────────────────── */
+
+.ch04-tv {
+  container-type: inline-size;
+}
+
+.ch04-tv__antenna {
+  position: absolute;
+  left: 27%;
+  bottom: calc(100% - 1cqi);
+  width: 46%;
+  height: auto;
+  overflow: visible;
+}
+
+.ch04-tv__body {
+  position: relative;
+  aspect-ratio: 1.42;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15cqi;
+  gap: 3cqi;
+  padding: 4.2cqi 4.2cqi 4.6cqi;
+  border-radius: 6.5cqi;
+  background:
+    linear-gradient(180deg, rgba(255, 230, 200, 0.12), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.28)),
+    repeating-linear-gradient(
+      91deg,
+      rgba(40, 20, 10, 0.12) 0 1.5px,
+      transparent 1.5px 7px,
+      rgba(255, 220, 180, 0.05) 7px 9px,
+      transparent 9px 15px
+    ),
+    linear-gradient(90deg, #6a3d25, #8a5634 45%, #6a3d25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 225, 190, 0.25),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+    0 2.4cqi 4cqi -1.6cqi rgba(0, 0, 0, 0.75);
+}
+/* lamp light grazing the left side of the set */
+.ch04-tv__body::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(100deg, rgba(var(--ch04-lamp-light), 0.2), transparent 42%);
+}
+
+.ch04-tv__bezel {
+  display: grid;
+  min-height: 0;
+  padding: 2.2cqi;
+  border-radius: 4.5cqi;
+  background: linear-gradient(160deg, #efe4cf, #d6c5a7);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 -0.6cqi 1.4cqi rgba(80, 55, 30, 0.35),
+    0 0 0 0.5cqi rgba(30, 15, 8, 0.35);
+  transition: box-shadow 0.9s var(--ease-soft);
+}
+.ch04-tv[data-on='true'] .ch04-tv__bezel {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 -0.6cqi 1.4cqi rgba(80, 55, 30, 0.35),
+    0 0 0 0.5cqi rgba(30, 15, 8, 0.35),
+    0 0 4cqi rgba(var(--ch04-tv-light), 0.28);
+}
+
+/* The glass: dark when off. */
+.ch04-screen {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 14% / 18%;
+  background: radial-gradient(120% 100% at 50% 45%, #2b3433, #121717);
+  box-shadow: inset 0 0 0 0.4cqi rgba(0, 0, 0, 0.6);
+}
+
+.ch04-screen__content {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  background: radial-gradient(120% 90% at 50% 38%, #c3dcef 0%, var(--tv-blue) 46%, #5c84a9 100%);
+}
+.ch04-tv[data-on='false'] .ch04-screen__content {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.ch04-screen__floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 76%;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(236, 246, 255, 0.42) 0 1px, rgba(40, 70, 105, 0.2) 1px, rgba(40, 70, 105, 0.32));
+}
+
+/* ── The chase: original, abstract — a big soft shape after a small quick one.
+   Three layers each: track (travel), lean (skew, jump), body (hop, squash). */
+
+.ch04-chase,
+.ch04-chase__lean {
+  position: absolute;
+  inset: 0;
+}
+
+.ch04-chase__body {
+  position: absolute;
+  left: 0;
+  bottom: 24%;
+  display: block;
+  transform-origin: 50% 100%;
+}
+
+.ch04-chase--small .ch04-chase__body {
+  width: 8%;
+  aspect-ratio: 1;
+  border-radius: 50% 50% 44% 44% / 56% 56% 44% 44%;
+  background: radial-gradient(circle at 36% 30%, #fffaf0, #efd9ad 72%, #d8b77d);
+  box-shadow: 0 0.6cqi 1cqi rgba(20, 40, 70, 0.28);
+}
+
+.ch04-chase--big .ch04-chase__body {
+  width: 17%;
+  aspect-ratio: 1.12;
+  border-radius: 48% 52% 42% 42% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 34% 28%, #7b93b1, #4a607d 62%, #364a63);
+  box-shadow: 0 0.8cqi 1.4cqi rgba(15, 30, 55, 0.35);
+}
+
+/* Still frame (reduced motion, and the resting pose): the big one just behind the small one. */
+.ch04-chase--small {
+  transform: translateX(60%);
+}
+.ch04-chase--small .ch04-chase__lean {
+  transform-origin: 4% 76%;
+  transform: skewX(-12deg);
+}
+.ch04-chase--big {
+  transform: translateX(18%);
+}
+.ch04-chase--big .ch04-chase__lean {
+  transform-origin: 8.5% 76%;
+  transform: skewX(-10deg);
+}
+
+.ch04-chase--small {
+  animation: ch04-small-run 7.5s infinite -2.4s;
+}
+.ch04-chase--small .ch04-chase__lean {
+  animation: ch04-small-lean 7.5s infinite -2.4s;
+}
+.ch04-chase--small .ch04-chase__body {
+  animation: ch04-hop 0.34s ease-in-out infinite alternate;
+}
+.ch04-chase--big {
+  animation: ch04-big-run 7.5s infinite -2.4s;
+}
+.ch04-chase--big .ch04-chase__lean {
+  animation: ch04-big-lean 7.5s infinite -2.4s;
+}
+.ch04-chase--big .ch04-chase__body {
+  animation: ch04-hop-big 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes ch04-small-run {
+  0%,
+  6% {
+    transform: translateX(-12%);
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 1);
+  }
+  31% {
+    transform: translateX(82%);
+    animation-timing-function: ease-out;
+  }
+  35% {
+    transform: translateX(86%);
+    animation-timing-function: ease-in-out;
+  }
+  40% {
+    transform: translateX(84%);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  49% {
+    transform: translateX(52%);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  66%,
+  100% {
+    transform: translateX(-14%);
+  }
+}
+
+@keyframes ch04-small-lean {
+  0%,
+  33% {
+    transform: translateY(0) skewX(-12deg);
+  }
+  36% {
+    transform: translateY(0) skewX(10deg) scaleX(0.9);
+  }
+  39% {
+    transform: translateY(0) skewX(8deg);
+  }
+  41% {
+    transform: translateY(0) skewX(10deg);
+    animation-timing-function: ease-out;
+  }
+  44.5% {
+    transform: translateY(-36%) skewX(4deg);
+    animation-timing-function: ease-in;
+  }
+  48% {
+    transform: translateY(0) skewX(12deg);
+  }
+  66%,
+  100% {
+    transform: translateY(0) skewX(12deg);
+  }
+}
+
+@keyframes ch04-big-run {
+  0%,
+  12% {
+    transform: translateX(-34%);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.3, 1);
+  }
+  39% {
+    transform: translateX(60%);
+    animation-timing-function: ease-out;
+  }
+  44% {
+    transform: translateX(70%);
+  }
+  47% {
+    transform: translateX(73%);
+  }
+  55% {
+    transform: translateX(73%);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1);
+  }
+  82%,
+  100% {
+    transform: translateX(-34%);
+  }
+}
+
+@keyframes ch04-big-lean {
+  0%,
+  38% {
+    transform: skewX(-10deg);
+  }
+  44% {
+    transform: skewX(-16deg) scale(1.04, 0.96);
+  }
+  47% {
+    transform: skewX(-20deg) scale(1.14, 0.86);
+  }
+  51% {
+    transform: skewX(4deg) scale(0.96, 1.04);
+  }
+  55% {
+    transform: skewX(10deg);
+  }
+  82%,
+  100% {
+    transform: skewX(10deg);
+  }
+}
+
+@keyframes ch04-hop {
+  from {
+    transform: translateY(0) scale(1.12, 0.88);
+  }
+  to {
+    transform: translateY(-42%) scale(0.93, 1.08);
+  }
+}
+
+@keyframes ch04-hop-big {
+  from {
+    transform: translateY(0) scale(1.08, 0.92);
+  }
+  to {
+    transform: translateY(-22%) scale(0.96, 1.05);
+  }
+}
+
+/* ── Screen texture: a slow rolling band, scanlines, a gentle flicker ── */
+
+.ch04-screen__roll {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -30%;
+  height: 30%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.09) 50%, transparent);
+  animation: ch04-roll 6.5s linear infinite;
+}
+@keyframes ch04-roll {
+  to {
+    transform: translateY(440%);
+  }
+}
+
+.ch04-screen__scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(12, 24, 44, 0.16) 0 1px, transparent 1px 3px);
+}
+
+.ch04-screen__flicker {
+  position: absolute;
+  inset: 0;
+  background: #0b1420;
+  opacity: 0;
+  animation: ch04-flicker 5s steps(1, end) infinite;
+}
+@keyframes ch04-flicker {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.07;
+  }
+  13% {
+    opacity: 0;
+  }
+  41% {
+    opacity: 0.05;
+  }
+  42% {
+    opacity: 0.1;
+  }
+  43% {
+    opacity: 0;
+  }
+  77% {
+    opacity: 0.06;
+  }
+  78% {
+    opacity: 0;
+  }
+}
+
+/* Loops rest unless the set is on and on screen (declared after the animations on purpose). */
+.ch04-screen :is(.ch04-chase, .ch04-chase__lean, .ch04-chase__body, .ch04-screen__roll, .ch04-screen__flicker) {
+  animation-play-state: paused;
+}
+.ch04-screen[data-run='true'] :is(.ch04-chase, .ch04-chase__lean, .ch04-chase__body, .ch04-screen__roll, .ch04-screen__flicker) {
+  animation-play-state: running;
+}
+
+/* The CRT line: expands on power-on, collapses to a dot on power-off. */
+.ch04-screen__flash {
+  position: absolute;
+  z-index: 2;
+  left: 4%;
+  right: 4%;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 2px;
+  background: #f4fbff;
+  box-shadow:
+    0 0 6px 2px rgba(205, 232, 255, 0.9),
+    0 0 18px 6px rgba(160, 205, 240, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.ch04-screen__glass {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 26% 18%, rgba(255, 255, 255, 0.16), transparent 60%),
+    radial-gradient(140% 130% at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.5));
+  box-shadow: inset 0 0 2.4cqi rgba(0, 0, 0, 0.6);
+}
+
+/* ── Control panel: knobs, a little light, the speaker ───── */
+
+.ch04-tv__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3cqi;
+  min-height: 0;
+  padding-block: 1.5cqi;
+}
+
+.ch04-tv__knob {
+  position: relative;
+  flex: none;
+  width: 10.5cqi;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 42% 36%, #6a4f3f 0 34%, #2c1f18 36% 50%, transparent 52%),
+    repeating-conic-gradient(#3b2a20 0 9deg, #1f150f 9deg 18deg);
+  box-shadow:
+    0 0.6cqi 1cqi rgba(0, 0, 0, 0.5),
+    inset 0 0 0 0.3cqi rgba(255, 220, 180, 0.08);
+  transition: transform 0.55s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.ch04-tv__knob::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 0.7cqi;
+  height: 3.4cqi;
+  margin-left: -0.35cqi;
+  border-radius: 1cqi;
+  background: #e9dcc4;
+}
+.ch04-tv__knob:not(.ch04-tv__knob--power) {
+  transform: rotate(-35deg);
+}
+.ch04-tv[data-on='true'] .ch04-tv__knob--power {
+  transform: rotate(90deg);
+}
+
+.ch04-tv__led {
+  flex: none;
+  width: 1.8cqi;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #4a1f1c;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
+}
+.ch04-tv[data-on='true'] .ch04-tv__led {
+  background: #ff9b6a;
+  box-shadow: 0 0 1.4cqi 0.3cqi rgba(255, 140, 90, 0.7);
+}
+
+.ch04-tv__grille {
+  flex: 1;
+  width: 80%;
+  min-height: 6cqi;
+  border-radius: 1.4cqi;
+  background: repeating-linear-gradient(to bottom, rgba(18, 9, 4, 0.6) 0 0.8cqi, transparent 0.8cqi 2cqi);
+}
+
+.ch04-tv__feet {
+  display: block;
+  height: 2.6cqi;
+  margin-inline: 14%;
+  background: linear-gradient(90deg, #2a1810 0 7%, transparent 7% 93%, #2a1810 93%);
+}
+
+/* ── The bowl beside the TV ───────────────────────────────── */
+
+.ch04-meal__art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ch04-steam {
+  position: absolute;
+  left: 25%;
+  bottom: 47%;
+  width: 50%;
+  height: auto;
+  overflow: visible;
+}
+
+.ch04-steam__wisp {
+  fill: none;
+  stroke: rgba(243, 233, 218, 0.6);
+  stroke-width: 1.4px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: ch04-steam 3.8s var(--ease-in-out) infinite;
+}
+.ch04-steam__wisp:nth-child(2) {
+  animation-delay: -1.3s;
+}
+.ch04-steam__wisp:nth-child(3) {
+  animation-delay: -2.6s;
+}
+.ch04-scene[data-visible='false'] .ch04-steam__wisp {
+  animation-play-state: paused;
+}
+
+@keyframes ch04-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(18%) scaleY(0.8);
+  }
+  35% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22%) scaleY(1.12);
+  }
+}
+
+/* The hidden note waits just above the bowl. On phones it stays near the right
+   edge so the note, unfolding to the left, never runs off-screen (≥ 320px). */
+.ch04-note {
+  left: -6px;
+  top: -54px;
+  pointer-events: auto;
+}
+@media (min-width: 900px) {
+  .ch04-note {
+    left: -26px;
+    top: -34px;
+  }
+}
+
+/* ── The knob button ──────────────────────────────────────── */
+
+.ch04-power {
+  padding-left: 0.85em;
+}
+
+.ch04-power__knob {
+  position: relative;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 42% 36%, #6a4f3f 0 34%, #2c1f18 36% 50%, transparent 52%),
+    repeating-conic-gradient(#3b2a20 0 12deg, #1f150f 12deg 24deg);
+  box-shadow: 0 0 0 1px rgba(201, 164, 106, 0.4);
+  transition: transform 0.55s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.ch04-power__knob::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 2px;
+  height: 32%;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--gold-light);
+}
+.ch04-power[aria-pressed='true'] .ch04-power__knob {
+  transform: rotate(90deg);
+}
+.ch04-power:active .ch04-power__knob {
+  transform: rotate(45deg) scale(0.9);
+}
+
+/* ── The quiet moment after the scene ─────────────────────── */
+
+.ch04-coda {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-l);
+  margin-top: clamp(5rem, 12vw, 9rem);
+  text-align: center;
+}
+
+.ch04-coda__rule {
+  width: min(10rem, 40%);
+}
+
+.ch04-keyline {
+  margin-inline: auto;
+}

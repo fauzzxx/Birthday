@@ -52,8 +52,15 @@
   min-width: 0;
 }
 
+/* Phones & tablets: the old print first, the new one offset beneath it. */
+.ch09-shot--then {
+  width: 100%;
+  max-width: 40rem;
+  justify-self: start;
+}
+
 .ch09-shot--still {
-  width: 84%;
+  width: min(84%, 24rem);
   justify-self: end;
 }
 
@@ -213,8 +220,10 @@
     align-items: start;
   }
 
+  .ch09-shot--then,
   .ch09-shot--still {
     width: auto;
+    max-width: none;
     justify-self: stretch;
   }
 

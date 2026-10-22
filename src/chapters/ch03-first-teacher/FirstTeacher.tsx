@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties } from 'react';
+import { Fragment, useRef, type CSSProperties } from 'react';
 import { ChapterHeading, ChapterSection } from '../../components/Chapter';
 import { HiddenNote } from '../../components/HiddenNote';
 import { Photo, photoSlotVisible } from '../../components/Photo';
@@ -60,7 +60,9 @@ const KEY_ROWS = firstTeacher.keyLine.split(/(?<=[.!?])\s+/).filter(Boolean);
 
 /* ── Pencil choreography ─────────────────────────────────────────────── */
 
-const WRITE_ANGLE = -52;
+/* A child holds the pencil fairly upright. Steeper on phones, where the page is the
+   full width of the screen and the pencil must not reach past its edge. */
+const WRITE_ANGLE = { desktop: -66, mobile: -76 };
 const REST_ANGLE = -24; // matches .ch03-pencil in CSS
 
 type Getter = () => number;
@@ -101,11 +103,11 @@ function offsetIn(el: HTMLElement, ancestor: HTMLElement) {
  * The pencil's graphite tip sits at its left-middle; x/y move that tip away
  * from its resting place (set in CSS) to a point on the page.
  */
-function waypoints(rig: Rig) {
+function waypoints(rig: Rig, writeAngle: number) {
   const { book, pencil } = rig;
   const tipX = () => pencil.offsetLeft;
   const tipY = () => pencil.offsetTop + pencil.offsetHeight / 2;
-  const point = (fx: Getter, fy: Getter, rotation = WRITE_ANGLE): Waypoint => ({
+  const point = (fx: Getter, fy: Getter, rotation = writeAngle): Waypoint => ({
     x: () => fx() - tipX(),
     y: () => fy() - tipY(),
     rotation,
@@ -129,7 +131,7 @@ function waypoints(rig: Rig) {
       ),
     rowEnd: (j: number) =>
       point(
-        () => { const b = m(rig.rows[j]); return b.x + b.w; },
+        () => { const b = m(rig.rows[j]); return b.x + b.w * 0.97; },
         () => { const b = m(rig.rows[j]); return b.y + b.h * 0.62; },
       ),
     tickStart: (n: number) =>
@@ -150,21 +152,25 @@ function waypoints(rig: Rig) {
  * on-enter timeline. `k` scales every duration. Every tween is a fromTo, so the
  * scrub stays exact when scrolled backwards or re-measured.
  */
-function writePage(tl: gsap.core.Timeline, rig: Rig, opts: { from: Waypoint; at: number; k: number }) {
+function writePage(
+  tl: gsap.core.Timeline,
+  rig: Rig,
+  opts: { from: Waypoint; at: number; k: number; writeAngle: number },
+) {
   const { k } = opts;
-  const wp = waypoints(rig);
+  const wp = waypoints(rig, opts.writeAngle);
   let t = opts.at;
   let prev = opts.from;
-  let first = true;
 
+  // Pencil moves never render immediately: the pencil's starting pose is either its
+  // CSS resting place (mobile) or set by the desktop timeline's first tween.
   const move = (to: Waypoint, duration: number, ease = 'power1.inOut') => {
     tl.fromTo(
       rig.pencil,
       { x: prev.x, y: prev.y, rotation: prev.rotation },
-      { x: to.x, y: to.y, rotation: to.rotation, duration: duration * k, ease, immediateRender: first },
+      { x: to.x, y: to.y, rotation: to.rotation, duration: duration * k, ease, immediateRender: false },
       t,
     );
-    first = false;
     prev = to;
     t += duration * k;
   };
@@ -241,10 +247,9 @@ export function FirstTeacher() {
 
     const all = <T extends Element = HTMLElement>(selector: string) => gsap.utils.toArray<T>(selector, el);
     const scene = el.querySelector<HTMLElement>('.ch03-scene');
-    const stage = el.querySelector<HTMLElement>('.ch03-stage');
     const book = el.querySelector<HTMLElement>('.ch03-book');
     const pencil = el.querySelector<HTMLElement>('.ch03-pencil');
-    if (!scene || !stage || !book || !pencil) return;
+    if (!scene || !book || !pencil) return;
 
     const rig: Rig = {
       book,
@@ -278,55 +283,52 @@ export function FirstTeacher() {
       const backShade = el.querySelector<HTMLElement>('.ch03-cover__back .ch03-cover__shade');
       const pageShade = el.querySelector<HTMLElement>('.ch03-page__shade');
 
-      // Wide screens pin the text and notebook together; narrower ones stack
-      // the text above, so only the notebook stage pins.
-      const layout = gsap.matchMedia();
-      layout.add({ wide: '(min-width: 1180px)', narrow: '(max-width: 1179.98px)' }, (context) => {
-        const { wide } = context.conditions as { wide: boolean };
-        const wp = waypoints(rig);
-        const tl = gsap.timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: {
-            trigger: wide ? scene : stage,
-            start: 'center center',
-            end: '+=150%',
-            pin: true,
-            scrub: 0.8,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        // The cover swings open on its spine; the closed book slides to make room.
-        tl.fromTo(book, { xPercent: -50 }, { xPercent: 0, duration: 2, ease: 'power2.inOut' }, 0);
-        if (cover) {
-          tl.fromTo(cover, { '--ch03-open': '0deg' }, { '--ch03-open': '-174deg', duration: 2, ease: 'power2.inOut' }, 0);
-        }
-        if (frontShade) tl.fromTo(frontShade, { opacity: 0 }, { opacity: 0.6, duration: 1, ease: 'power1.in' }, 0);
-        if (backShade) tl.fromTo(backShade, { opacity: 0.55 }, { opacity: 0, duration: 1, ease: 'power1.out' }, 1);
-        if (pageShade) tl.fromTo(pageShade, { opacity: 0.75 }, { opacity: 0, duration: 1.5, ease: 'power2.out' }, 0.5);
-
-        // Her photo, clipped inside the cover.
-        if (prints.length) {
-          tl.fromTo(
-            prints,
-            { autoAlpha: 0, y: -28, rotation: -5, scale: 1.04 },
-            { autoAlpha: 1, y: 0, rotation: 0, scale: 1, duration: 0.8, stagger: 0.25, ease: 'power2.out' },
-            1.75,
-          );
-        }
-
-        // The pencil is picked up from the desk while the cover opens…
-        tl.fromTo(
-          pencil,
-          { x: wp.desk.x, y: wp.desk.y, rotation: wp.desk.rotation },
-          { x: wp.lift.x, y: wp.lift.y, rotation: wp.lift.rotation, duration: 1.4, ease: 'power1.inOut' },
-          0.5,
-        );
-        // …and the lesson begins.
-        writePage(tl, rig, { from: wp.lift, at: 1.9, k: 1 });
+      // Pin the text and notebook together (side by side ≥ 1180px, stacked below).
+      // Centred while it fits the window; otherwise aligned to the bottom, so the
+      // notebook itself is always fully in view while the lesson plays.
+      const wp = waypoints(rig, WRITE_ANGLE.desktop);
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: scene,
+          start: () => (scene.offsetHeight > window.innerHeight * 0.92 ? 'bottom bottom' : 'center center'),
+          end: '+=150%',
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
       });
-      return () => layout.revert();
+
+      // The cover swings open on its spine; the closed book slides to make room.
+      tl.fromTo(book, { xPercent: -50 }, { xPercent: 0, duration: 2, ease: 'power2.inOut' }, 0);
+      if (cover) {
+        tl.fromTo(cover, { '--ch03-open': '0deg' }, { '--ch03-open': '-174deg', duration: 2, ease: 'power2.inOut' }, 0);
+      }
+      if (frontShade) tl.fromTo(frontShade, { opacity: 0 }, { opacity: 0.6, duration: 1, ease: 'power1.in' }, 0);
+      if (backShade) tl.fromTo(backShade, { opacity: 0.55 }, { opacity: 0, duration: 1, ease: 'power1.out' }, 1);
+      if (pageShade) tl.fromTo(pageShade, { opacity: 0.75 }, { opacity: 0, duration: 1.5, ease: 'power2.out' }, 0.5);
+
+      // Her photo, clipped inside the cover.
+      if (prints.length) {
+        tl.fromTo(
+          prints,
+          { autoAlpha: 0, y: -28, rotation: -5, scale: 1.04 },
+          { autoAlpha: 1, y: 0, rotation: 0, scale: 1, duration: 0.8, stagger: 0.25, ease: 'power2.out' },
+          1.75,
+        );
+      }
+
+      // The pencil is picked up from the desk while the cover opens…
+      tl.fromTo(
+        pencil,
+        { x: wp.desk.x, y: wp.desk.y, rotation: wp.desk.rotation },
+        { x: wp.lift.x, y: wp.lift.y, rotation: wp.lift.rotation, duration: 1.4, ease: 'power1.inOut' },
+        0.5,
+      );
+      // …and the lesson begins.
+      writePage(tl, rig, { from: wp.lift, at: 1.9, k: 1, writeAngle: WRITE_ANGLE.desktop });
+      return;
     }
 
     // Mobile: the notebook is already open. One short lesson when it arrives.
@@ -346,7 +348,12 @@ export function FirstTeacher() {
       );
     }
     const tl = gsap.timeline({ scrollTrigger: { trigger: book, start: 'top 72%', once: true } });
-    writePage(tl, rig, { from: waypoints(rig).rest, at: 0, k: 0.62 });
+    writePage(tl, rig, {
+      from: waypoints(rig, WRITE_ANGLE.mobile).rest,
+      at: 0,
+      k: 0.62,
+      writeAngle: WRITE_ANGLE.mobile,
+    });
   });
 
   return (
@@ -421,10 +428,10 @@ export function FirstTeacher() {
 
                 <p className="ch03-row ch03-keyline">
                   {KEY_ROWS.map((row, i) => (
-                    <span key={i} className="ch03-keyline__row">
-                      {row}
-                      {i < KEY_ROWS.length - 1 ? ' ' : ''}
-                    </span>
+                    <Fragment key={i}>
+                      {i > 0 && ' '}
+                      <span className="ch03-keyline__row">{row}</span>
+                    </Fragment>
                   ))}
                 </p>
 
@@ -457,7 +464,9 @@ export function FirstTeacher() {
                 </div>
               </div>
 
-              <Pencil className="ch03-pencil" />
+              <span className="ch03-pencil" aria-hidden="true">
+                <Pencil />
+              </span>
             </div>
           </div>
         </div>

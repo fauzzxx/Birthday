@@ -116,15 +116,17 @@ export function Lessons() {
     ScrollTrigger.refresh();
 
     const reduce = prefersReducedMotion();
+
+    // Scroll first (if needed), so each frame the page moves before a flight measures it.
+    scrollTween.current?.kill();
+    scrollTween.current = bringIntoView(p.mode === 'all' ? slots[0] : slots[slots.length - 1], reduce);
+
     if (!reduce) animateArrivals(slots, p.mode, window.matchMedia(MQ.desktop).matches);
 
     // The controls leave once every lesson is out: hand focus to the first new lesson.
     if (count >= TOTAL && p.hadFocus) {
       slots[0].querySelector<HTMLElement>('.ch10-card-lesson')?.focus({ preventScroll: true });
     }
-
-    scrollTween.current?.kill();
-    scrollTween.current = bringIntoView(p.mode === 'all' ? slots[0] : slots[slots.length - 1], reduce);
   }, [count]);
 
   // When the deck is empty, let it fade, then remove it (and its buttons).

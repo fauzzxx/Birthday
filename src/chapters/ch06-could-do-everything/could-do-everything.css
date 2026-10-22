@@ -1,0 +1,769 @@
+/* ==========================================================================
+   CHAPTER 06 — The woman who could do everything  (theme: ivory)
+   A lived-in family album: cloth binding, cream pages, photo corners,
+   handwriting, index tabs. Warm, a little playful.
+   ========================================================================== */
+
+.ch06 {
+  --ch06-paper: #fcf8f0;
+  --ch06-card: #fffdf8;
+  --ch06-ink: var(--burgundy); /* handwriting ink — passes contrast on paper */
+  --ch06-rule: rgba(169, 195, 220, 0.55);
+  --ch06-margin: rgba(217, 139, 139, 0.65);
+  --ch06-edge: #e7dcc9;
+  --ch06-spine: rgba(78, 52, 30, 0.16);
+  --ch06-pad: clamp(1.25rem, 3vw, 2.75rem);
+  overflow: hidden;
+}
+
+/* ── Header: title + intro ────────────────────────────────── */
+
+.ch06-header {
+  display: grid;
+  gap: var(--space-l);
+  margin-bottom: clamp(3rem, 7vw, 5.5rem);
+}
+
+.ch06 .ch06-head {
+  margin-bottom: 0;
+}
+
+.ch06-intro {
+  display: grid;
+  gap: var(--space-s);
+  max-width: var(--measure);
+}
+
+.ch06-intro__p + .ch06-intro__p {
+  color: var(--fg-soft);
+}
+
+@media (min-width: 900px) {
+  .ch06-header {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    column-gap: var(--space-2xl);
+  }
+}
+
+/* ── The book ─────────────────────────────────────────────── */
+
+.ch06-book {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'left'
+    'tabs'
+    'right';
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+/* Burgundy book-cloth: a fine woven texture, peeking out around the pages. */
+.ch06-cloth {
+  position: relative;
+  z-index: 0;
+  grid-row: 1 / -1;
+  grid-column: 1 / -1;
+  margin: -10px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.07) 0 1px, transparent 1px 3px),
+    linear-gradient(160deg, #73304a, var(--burgundy) 45%, var(--burgundy-deep));
+  box-shadow:
+    0 2px 3px rgba(30, 18, 14, 0.2),
+    0 34px 60px -30px rgba(30, 18, 14, 0.55);
+}
+
+.ch06-ribbon {
+  display: none;
+}
+
+.ch06-page {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.ch06-page--left {
+  grid-area: left;
+  border-radius: 4px;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 62%, rgba(150, 118, 76, 0.08)),
+    var(--ch06-paper);
+}
+
+.ch06-page--right {
+  grid-area: right;
+  display: grid;
+  border-radius: 4px;
+}
+
+/* ── Index tabs ───────────────────────────────────────────── */
+
+.ch06-tabs {
+  grid-area: tabs;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-s);
+  padding: 8px 8px 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.ch06-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ch06-tab {
+  --ch06-tab-bg: #ece0c4;
+  flex: none;
+  min-height: 44px;
+  padding: 0.3rem 1rem 0.2rem;
+  border-radius: 10px 10px 0 0;
+  background: var(--ch06-tab-bg);
+  box-shadow: inset 0 -6px 8px -8px rgba(48, 33, 31, 0.35);
+  font-family: var(--font-hand);
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out),
+    translate var(--dur-med) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.ch06-tab[data-tone='0'] {
+  --ch06-tab-bg: #efd8cf;
+}
+.ch06-tab[data-tone='1'] {
+  --ch06-tab-bg: #ece0c4;
+}
+.ch06-tab[data-tone='2'] {
+  --ch06-tab-bg: #dfe4d2;
+}
+.ch06-tab[data-tone='3'] {
+  --ch06-tab-bg: #dce4ea;
+}
+.ch06-tab[data-tone='4'] {
+  --ch06-tab-bg: #ead9e0;
+}
+
+.ch06-tab:hover {
+  color: var(--ink);
+}
+
+.ch06-tab[aria-selected='true'] {
+  background: var(--ch06-paper);
+  box-shadow: none;
+  color: var(--ch06-ink);
+}
+
+.ch06-tab:focus-visible {
+  outline-offset: -4px;
+}
+
+/* ── Pages (all stacked in one cell; only the active one is visible) ── */
+
+.ch06-pages {
+  position: relative;
+  display: grid;
+  min-height: 22rem;
+  border-radius: inherit;
+}
+
+.ch06-panel,
+.ch06-cast,
+.ch06-leafback {
+  grid-area: 1 / 1;
+}
+
+.ch06-panel {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+  padding: var(--ch06-pad);
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 62%, rgba(150, 118, 76, 0.08)),
+    var(--ch06-paper);
+  visibility: hidden;
+}
+
+.ch06-panel:focus-visible {
+  outline-offset: -6px;
+}
+
+.ch06-panel[data-state='active'] {
+  z-index: 1;
+  visibility: visible;
+}
+.ch06-panel[data-state='leaving'] {
+  z-index: 3;
+  visibility: visible;
+}
+.ch06-pages[data-dir='back'] .ch06-panel[data-state='leaving'],
+.ch06-pages[data-mode='fade'] .ch06-panel[data-state='leaving'] {
+  z-index: 1;
+}
+.ch06-pages[data-dir='back'] .ch06-panel[data-state='active'] {
+  z-index: 3;
+}
+.ch06-pages[data-mode='fade'] .ch06-panel[data-state='active'] {
+  z-index: 2;
+}
+
+/* Shading on a turning leaf (driven by --ch06-shade from the page-turn timeline). */
+.ch06-panel::after,
+.ch06-leafback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(48, 30, 20, 0.5), rgba(48, 30, 20, 0.14));
+  opacity: var(--ch06-shade, 0);
+}
+
+/* The shadow a lifting page casts on the page beneath it. */
+.ch06-cast {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(48, 33, 31, 0.34), rgba(48, 33, 31, 0.1) 35%, transparent 72%);
+}
+
+/* The blank back of a turning page. */
+.ch06-leafback {
+  position: relative;
+  z-index: 4;
+  pointer-events: none;
+  visibility: hidden;
+  background:
+    linear-gradient(90deg, var(--ch06-spine), transparent 9%),
+    #f7f1e6;
+}
+
+.ch06-panel__foot {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: var(--space-m);
+  color: var(--accent-deco);
+}
+.ch06-panel__foot .ornament-rule {
+  width: 6.5rem;
+}
+
+/* ── Page typography ──────────────────────────────────────── */
+
+.ch06-page__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--step-3);
+  line-height: 1.1;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+.ch06-hand {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-2);
+  line-height: 1.2;
+  color: var(--ch06-ink);
+}
+
+.ch06-page__note {
+  margin-top: calc(var(--space-2xs) * -1);
+  rotate: -1deg;
+}
+
+/* ── Photo corners ────────────────────────────────────────── */
+
+.ch06-mount {
+  position: relative;
+  rotate: var(--ch06-tilt, 0deg);
+}
+
+.ch06-mount .photo--print {
+  box-shadow:
+    0 1px 1px rgba(30, 18, 14, 0.08),
+    0 8px 16px -8px rgba(30, 18, 14, 0.34);
+}
+
+.ch06-corner {
+  position: absolute;
+  z-index: 4;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  background: linear-gradient(135deg, #3d2d29, #221714);
+}
+.ch06-corner--tl {
+  top: -5px;
+  left: -5px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.ch06-corner--tr {
+  top: -5px;
+  right: -5px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.ch06-corner--bl {
+  bottom: -5px;
+  left: -5px;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+.ch06-corner--br {
+  bottom: -5px;
+  right: -5px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* ── Cover (left page) ────────────────────────────────────── */
+
+.ch06-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: clamp(1.75rem, 4vw, 3rem) var(--ch06-pad) clamp(2.25rem, 5vw, 3.5rem);
+}
+
+.ch06-cover__photo {
+  width: min(64%, 15rem);
+}
+
+.ch06-cover__sprig {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  width: clamp(3.5rem, 9vw, 6rem);
+  height: auto;
+  color: var(--gold-ink);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Kitchen ──────────────────────────────────────────────── */
+
+.ch06-kitchen {
+  display: grid;
+  gap: var(--space-m);
+  align-items: start;
+  margin-top: var(--space-2xs);
+}
+
+.ch06-kitchen--photo {
+  grid-template-columns: minmax(0, 1fr) clamp(6rem, 32%, 9.5rem);
+}
+
+/* A recipe card: red header line, blue rules, the true note in her son's hand. */
+.ch06-recipe {
+  --rule: 2rem;
+  position: relative;
+  min-height: 13rem;
+  padding: calc(var(--rule) * 1.25) 3.6rem calc(var(--rule) * 0.75) 1.25rem;
+  border-radius: 3px;
+  background:
+    linear-gradient(var(--ch06-margin), var(--ch06-margin)) 0 calc(var(--rule) * 1.05) / 100% 1px no-repeat,
+    repeating-linear-gradient(
+        180deg,
+        transparent 0 calc(var(--rule) - 1px),
+        var(--ch06-rule) calc(var(--rule) - 1px) var(--rule)
+      )
+      0 calc(var(--rule) * 1.25) / 100% calc(100% - var(--rule) * 1.25) no-repeat,
+    var(--ch06-card);
+  box-shadow:
+    0 1px 1px rgba(30, 18, 14, 0.06),
+    0 12px 24px -14px rgba(30, 18, 14, 0.38);
+  rotate: -1.2deg;
+}
+
+.ch06-recipe__note {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: clamp(1.35rem, 1.2rem + 0.5vw, 1.62rem);
+  line-height: var(--rule);
+  color: var(--ch06-ink);
+}
+
+.ch06-recipe__sprig {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  width: 2.5rem;
+  height: auto;
+  color: var(--gold-ink);
+  opacity: 0.7;
+}
+
+.ch06-kitchen__photo {
+  margin-top: var(--space-2xs);
+}
+
+.ch06-dishes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr));
+  gap: var(--space-xs);
+  margin: var(--space-2xs) 0 0;
+}
+
+.ch06-dish {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--ch06-card);
+  box-shadow: 0 6px 14px -10px rgba(30, 18, 14, 0.35);
+}
+
+.ch06-dish__name {
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.15;
+  color: var(--ch06-ink);
+}
+
+.ch06-dish__note {
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--fg-soft);
+}
+
+/* A pressed sprig, taped to the page — keeps a quiet kitchen page complete. */
+.ch06-pressed {
+  position: relative;
+  align-self: center;
+  width: min(72%, 15rem);
+  margin-top: var(--space-m);
+  color: var(--gold-ink);
+}
+
+.ch06-pressed__branch {
+  width: 100%;
+  height: auto;
+  opacity: 0.55;
+  rotate: -8deg;
+}
+
+.ch06-pressed__tape {
+  position: absolute;
+  z-index: 1;
+  width: 3.2rem;
+  height: 1rem;
+  background: rgba(220, 165, 165, 0.42);
+  box-shadow: 0 0 0 0.5px rgba(142, 76, 85, 0.12);
+}
+.ch06-pressed__tape--a {
+  left: 6%;
+  top: 62%;
+  rotate: -32deg;
+}
+.ch06-pressed__tape--b {
+  right: 4%;
+  top: 22%;
+  rotate: 18deg;
+}
+
+/* ── What she knows: a library catalogue card ─────────────── */
+
+.ch06-catalogue {
+  position: relative;
+  padding: 0.35rem 1.1rem 2.1rem;
+  border: 1px solid rgba(125, 94, 47, 0.2);
+  border-radius: 4px;
+  background: var(--ch06-card);
+  box-shadow:
+    0 1px 1px rgba(30, 18, 14, 0.05),
+    0 12px 24px -16px rgba(30, 18, 14, 0.35);
+}
+
+.ch06-catalogue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2.85rem;
+  width: 1px;
+  background: var(--ch06-margin);
+  opacity: 0.6;
+}
+
+.ch06-index {
+  display: grid;
+  margin: 0;
+}
+
+.ch06-index__row {
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr);
+  grid-template-areas:
+    'icon subject'
+    '. detail';
+  align-items: center;
+  column-gap: 1.25rem;
+  row-gap: 0.1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--ch06-rule);
+}
+
+.ch06-index__icon {
+  grid-area: icon;
+  width: 1.3rem;
+  height: 1.3rem;
+  color: var(--accent);
+}
+
+.ch06-index__subject {
+  grid-area: subject;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.ch06-index__detail {
+  grid-area: detail;
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.2;
+  color: var(--ch06-ink);
+  overflow-wrap: anywhere;
+}
+
+.ch06-catalogue__hole {
+  position: absolute;
+  left: 50%;
+  bottom: 0.65rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-left: -0.425rem;
+  border-radius: 50%;
+  background: var(--theme-ivory-bg);
+  box-shadow: inset 0 1px 2px rgba(30, 18, 14, 0.28);
+}
+
+/* ── Sayings & funny moments ──────────────────────────────── */
+
+.ch06-quote-mark {
+  display: block;
+  height: 2.1rem;
+  margin-top: var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: 5rem;
+  line-height: 0.85;
+  color: var(--accent-deco);
+}
+
+.ch06-sayings {
+  display: grid;
+  gap: var(--space-s);
+  margin: 0;
+}
+
+.ch06-saying {
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--ch06-rule);
+  font-family: var(--font-hand);
+  font-size: var(--step-2);
+  line-height: 1.25;
+  color: var(--ch06-ink);
+  overflow-wrap: anywhere;
+}
+
+.ch06-funny {
+  display: grid;
+  gap: var(--space-m);
+  margin: 0;
+  padding-top: var(--space-xs);
+}
+
+.ch06-slip {
+  position: relative;
+  padding: 1rem 1.2rem 0.9rem;
+  background: var(--ch06-card);
+  box-shadow:
+    0 1px 1px rgba(30, 18, 14, 0.06),
+    0 10px 18px -12px rgba(30, 18, 14, 0.35);
+  rotate: var(--ch06-slip-tilt, 0deg);
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.3;
+  color: var(--ch06-ink);
+  overflow-wrap: anywhere;
+}
+
+.ch06-slip::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 4rem;
+  height: 18px;
+  margin-left: -2rem;
+  background: rgba(220, 165, 165, 0.42);
+  rotate: -2deg;
+}
+
+/* ── The favourite ────────────────────────────────────────── */
+
+.ch06-fav {
+  display: grid;
+  gap: var(--space-l);
+  align-items: start;
+}
+
+.ch06-fav__text {
+  color: var(--fg);
+}
+
+.ch06-fav__keep {
+  position: relative;
+  justify-self: center;
+  width: clamp(9.5rem, 56%, 13.5rem);
+  margin-bottom: var(--space-s);
+}
+
+.ch06-fav__note {
+  left: 50%;
+  bottom: -30px;
+  margin-left: -22px;
+}
+
+/* ── Key line ─────────────────────────────────────────────── */
+
+.ch06 .ch06-keyline {
+  margin: clamp(4.5rem, 10vw, 8rem) auto 0;
+  text-align: center;
+}
+
+/* ── Desktop: an open two-page spread, tabs down the right edge ── */
+
+@media (min-width: 900px) {
+  .ch06-book {
+    /* Leaves room on the right for the fixed chapter rail. */
+    max-width: min(68rem, calc(100% - 3.5rem));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-areas: 'left right tabs';
+  }
+
+  .ch06-cloth {
+    grid-row: 1;
+    grid-column: 1 / 3;
+    margin: -14px;
+  }
+
+  /* A satin ribbon bookmark hanging out beneath the pages. */
+  .ch06-ribbon {
+    display: block;
+    position: absolute;
+    z-index: 0;
+    grid-row: 1;
+    grid-column: 2;
+    left: 1.6rem;
+    bottom: -3.4rem;
+    width: 13px;
+    height: 6rem;
+    background: linear-gradient(90deg, #b48d55, #e3c88f 45%, #b08a53);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%);
+    pointer-events: none;
+  }
+
+  .ch06-page {
+    min-height: clamp(32rem, 44vw, 38rem);
+  }
+
+  .ch06-page--left {
+    border-radius: 4px 0 0 4px;
+    background:
+      linear-gradient(270deg, var(--ch06-spine), transparent 9%),
+      radial-gradient(120% 90% at 50% 40%, transparent 62%, rgba(150, 118, 76, 0.08)),
+      var(--ch06-paper);
+    box-shadow:
+      -1px 1px 0 #efe6d6,
+      -2px 2px 0 var(--ch06-edge),
+      -3px 3px 0 #efe6d6,
+      -4px 4px 0 var(--ch06-edge);
+  }
+
+  .ch06-page--right {
+    border-radius: 0 4px 4px 0;
+    box-shadow:
+      1px 1px 0 #efe6d6,
+      2px 2px 0 var(--ch06-edge),
+      3px 3px 0 #efe6d6,
+      4px 4px 0 var(--ch06-edge);
+  }
+
+  .ch06-panel {
+    background:
+      linear-gradient(90deg, var(--ch06-spine), transparent 9%),
+      radial-gradient(120% 90% at 50% 40%, transparent 62%, rgba(150, 118, 76, 0.08)),
+      var(--ch06-paper);
+  }
+
+  .ch06-cover__photo {
+    width: min(78%, 17.5rem);
+  }
+
+  .ch06-tabs {
+    z-index: 2;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+    padding: clamp(2rem, 4.5vw, 3.25rem) 0 0;
+    overflow: visible;
+  }
+
+  .ch06-tab {
+    min-height: 48px;
+    padding: 0.3rem 1.05rem 0.25rem 0.95rem;
+    border-radius: 0 10px 10px 0;
+    box-shadow: inset 6px 0 8px -8px rgba(48, 33, 31, 0.4);
+  }
+
+  .ch06-tab:hover {
+    translate: 3px 0;
+  }
+
+  /* The open page's tab joins the page edge (covering the page-stack lines). */
+  .ch06-tab[aria-selected='true'] {
+    translate: -4px 0;
+    padding-left: calc(0.95rem + 4px);
+    box-shadow: 2px 2px 0 -1px var(--ch06-edge);
+  }
+
+  .ch06-pages {
+    min-height: 0;
+  }
+}
+
+@media (min-width: 1100px) {
+  .ch06-fav {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-m);
+  }
+
+  .ch06-fav__keep {
+    width: clamp(10rem, 15vw, 13rem);
+    margin-top: var(--space-2xs);
+  }
+}

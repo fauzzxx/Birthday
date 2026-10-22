@@ -123,8 +123,8 @@ export function ThousandNights() {
 
   /* ── Small transitions on change ───────────────────────── */
 
-  // Desktop card: the new memory settles in.
-  useEffect(() => {
+  // Desktop card: the new memory settles in (before paint, so it never flashes).
+  useLayoutEffect(() => {
     if (prevCardSel.current === selected) return;
     prevCardSel.current = selected;
     const body = bodyRef.current;
@@ -142,7 +142,7 @@ export function ThousandNights() {
   }, [selected, reduce, isDesktop]);
 
   // Phones: the opened memory unfolds; later scroll scenes are re-measured.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isDesktop) {
       prevPanelSel.current = selected;
       return;
@@ -252,12 +252,15 @@ export function ThousandNights() {
       const marks = gsap.utils.toArray<HTMLElement>(list.querySelectorAll('.ch05-vstar'));
       const tl = gsap.timeline({ scrollTrigger: { trigger: list, start: 'top 78%' } });
       const laptop = list.querySelector('.ch05-vlaptop');
+      const each = 0.32;
       if (laptop) tl.from(laptop, { opacity: 0, duration: 1.4, ease: 'power2.out' }, 0);
       if (segments.length) {
-        tl.from(segments, { scaleY: 0, transformOrigin: '50% 0%', duration: 0.42, stagger: 0.32, ease: 'none' }, 0.3);
+        tl.from(segments, { scaleY: 0, transformOrigin: '50% 0%', duration: 0.42, stagger: each, ease: 'none' }, 0.3);
       }
       if (marks.length) {
-        tl.from(marks, { opacity: 0, x: -10, duration: 0.8, stagger: 0.32, ease: 'power3.out' }, 0.55);
+        // Each star arrives just as its piece of line reaches it.
+        const firstStar = 0.3 + Math.max(0, segments.length - marks.length) * each + 0.12;
+        tl.from(marks, { opacity: 0, x: -10, duration: 0.8, stagger: each, ease: 'power3.out' }, firstStar);
       }
     },
     [isDesktop, fractions],

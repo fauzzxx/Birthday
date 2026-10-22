@@ -37,10 +37,14 @@ export function useScene(
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
+      // gsap.matchMedia only runs the setup when at least ONE condition matches.
+      // `desktop` and `mobile` are complementary, so one of them always does —
+      // without `mobile` here, phones (narrow + touch + motion allowed) matched
+      // nothing and no animation was ever set up.
       mm.add(
-        { reduce: MQ.reduce, desktop: MQ.desktop, finePointer: MQ.finePointer },
+        { reduce: MQ.reduce, desktop: MQ.desktop, mobile: MQ.mobile, finePointer: MQ.finePointer },
         (context) => {
-          const c = context.conditions as { reduce: boolean; desktop: boolean; finePointer: boolean };
+          const c = context.conditions as { reduce: boolean; desktop: boolean; mobile: boolean; finePointer: boolean };
           return setup({
             reduce: !!c.reduce,
             desktop: !!c.desktop,

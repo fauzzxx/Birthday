@@ -4,7 +4,7 @@ import { ChapterHeading, ChapterSection } from '../../components/Chapter';
 import { DustField } from '../../components/atmosphere/DustField';
 import { opening } from '../../content/story';
 import { emit, on } from '../../lib/events';
-import { gsap, SplitText } from '../../lib/gsap';
+import { gsap, ScrollTrigger, SplitText } from '../../lib/gsap';
 import { scrollToChapter } from '../../lib/navigation';
 import { useScene } from '../../lib/scene';
 import { usePointerDepth } from '../../lib/usePointer';
@@ -25,7 +25,7 @@ import './opening.css';
  */
 
 /** Inputs that mean "I'm here, show me everything" while the intro plays. */
-const SKIP_EVENTS = ['wheel', 'touchmove', 'keydown', 'click'] as const;
+const SKIP_EVENTS = ['keydown', 'click'] as const;
 
 /** The last two words of the headline are set in italic gold. */
 function splitTail(text: string): [string, string] {
@@ -88,8 +88,11 @@ export function Opening() {
     }).words;
 
     let detach = () => {};
+    // The rose landing sits above this chapter, so the intro waits until the
+    // chapter scrolls into view instead of playing (unseen) on page load.
     const intro = gsap.timeline({
-      delay: 0.3,
+      paused: true,
+      delay: 0.15,
       defaults: { ease: 'power3.out' },
       onComplete: () => {
         playedRef.current = true;
@@ -114,28 +117,42 @@ export function Opening() {
       .from(sub, { opacity: 0, y: 16, duration: 1.2 }, 4.6)
       .from(invite, { autoAlpha: 0, y: 14, duration: 1.1 }, 5.15)
       .from(cue, { autoAlpha: 0, duration: 1.1 }, 5.55);
+    intro.timeScale(1.35);
 
     // Nobody waits: any input jumps to the end of the intro.
     const skip = () => {
       detach();
       if (intro.progress() < 1) intro.progress(1);
     };
-    const onScroll = () => {
-      if (window.scrollY > 8) skip();
-    };
+    // Scrolling is how she arrives here, so only a tap or key press skips the intro.
     const attach = () => {
       detach();
       SKIP_EVENTS.forEach((type) => window.addEventListener(type, skip, { capture: true, passive: true }));
-      window.addEventListener('scroll', onScroll, { passive: true });
       detach = () => {
         SKIP_EVENTS.forEach((type) => window.removeEventListener(type, skip, { capture: true }));
-        window.removeEventListener('scroll', onScroll);
         detach = () => {};
       };
     };
 
-    if (playedRef.current || window.scrollY > window.innerHeight * 0.25) intro.progress(1);
-    else attach();
+    // Play the intro when the chapter comes into view (once per visit / replay).
+    let arm: ScrollTrigger | null = null;
+    const armIntro = () => {
+      arm?.kill();
+      arm = ScrollTrigger.create({
+        trigger: root,
+        start: 'top 65%',
+        once: true,
+        onEnter: () => {
+          if (intro.progress() < 1) {
+            intro.play();
+            attach();
+          }
+        },
+      });
+    };
+    const alreadyPast = root.getBoundingClientRect().bottom < window.innerHeight * 0.5;
+    if (playedRef.current || alreadyPast) intro.progress(1);
+    else armIntro();
 
     // ── Scroll-out: the words lift away; the glow warms, then dims into 02's night ──
     const canvas = dust.querySelector('canvas');
@@ -167,8 +184,9 @@ export function Opening() {
         still = window.scrollY < 4 ? still + 1 : 0;
         if (still >= 4) {
           raf = 0;
-          intro.restart(true);
-          attach();
+          playedRef.current = false;
+          intro.pause(0);
+          armIntro();
           return;
         }
         // If the visitor goes somewhere else instead, let it be.
@@ -179,6 +197,7 @@ export function Opening() {
 
     return () => {
       detach();
+      arm?.kill();
       offReplay();
       cancelAnimationFrame(raf);
     };

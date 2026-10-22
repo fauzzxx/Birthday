@@ -123,6 +123,33 @@
   }
 }
 
+/* Phones: the lamp's warm pool on the left of the set (always lit; on scroll it
+   gathers as the scene comes in — see LittleWorld.tsx). Desktop has the
+   room-wide lamp leak instead. */
+.ch04-lamp {
+  grid-area: room;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+  transform-origin: 8% 24%;
+}
+.ch04-lamp::before {
+  content: '';
+  position: absolute;
+  inset: -16% 0 0;
+  background: radial-gradient(
+    62% 52% at 8% 24%,
+    rgba(var(--ch04-lamp-light), 0.24),
+    rgba(var(--ch04-lamp-light), 0.08) 52%,
+    transparent 100%
+  );
+}
+@media (min-width: 900px) {
+  .ch04-lamp {
+    display: none;
+  }
+}
+
 .ch04-wall {
   grid-area: wall;
 }
@@ -380,7 +407,8 @@
     inset 0 -2px 0 rgba(0, 0, 0, 0.3),
     0 2.4cqi 4cqi -1.6cqi rgba(0, 0, 0, 0.75);
 }
-/* lamp light grazing the left side of the set */
+/* lamp light grazing the left side of the set
+   (--ch04-lamp is only ever set on phones, scrubbed by scroll; otherwise 1) */
 .ch04-tv__body::after {
   content: '';
   position: absolute;
@@ -388,6 +416,7 @@
   border-radius: inherit;
   pointer-events: none;
   background: linear-gradient(100deg, rgba(var(--ch04-lamp-light), 0.2), transparent 42%);
+  opacity: var(--ch04-lamp, 1);
 }
 
 .ch04-tv__bezel {

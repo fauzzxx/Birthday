@@ -13,13 +13,14 @@ import './boy-grew-up.css';
  * Chapter 09 — The boy grew up. Your love never did.
  *
  * The turning point. One print "grows up": the old studio portrait (always
- * shown whole) and a recent photograph of Ma share a single frame. On desktop
- * the stage pins while a warm film light sweeps across it, the print reshapes
- * from the old photo's landscape to the new one's portrait, the past dissolves
- * and the present comes into focus — "Then" becomes "Still".
- * Mobile shows the two prints one after another; reduced motion shows them
- * side by side. After that the scene goes quiet — an admission, the key line,
- * a plain apology and thanks — with slow fades only.
+ * shown whole) and a recent photograph of Ma share a single frame. The stage
+ * pins while a warm film light sweeps across it, the print reshapes from the
+ * old photo's landscape to the new one's portrait, the past dissolves and the
+ * present comes into focus — "Then" becomes "Still". All of it is tied to the
+ * scroll on every screen size; phones get a shorter pin, a one-screen stacked
+ * stage (print above, words below) and no blur. Reduced motion shows the two
+ * prints as a static diptych. After that the scene goes quiet — an admission,
+ * the key line, a plain apology and thanks — with slow fades only.
  */
 export function BoyGrewUp() {
   const root = useRef<HTMLElement>(null);
@@ -40,9 +41,10 @@ export function BoyGrewUp() {
     if (reduce || !el) return;
 
     // Switch the stage into its single-frame layout first, so every trigger
-    // below measures the final page geometry.
+    // below measures the final page geometry. (Desktop and phones both morph;
+    // the CSS gives each its own one-screen layout.)
     const stage = el.querySelector<HTMLElement>('.ch09-morph');
-    const morphing = desktop && canMorph && stage !== null;
+    const morphing = canMorph && stage !== null;
     if (morphing && stage) stage.dataset.mode = 'morph';
 
     const titleLines = el.querySelectorAll('.ch09-title-line');
@@ -57,8 +59,8 @@ export function BoyGrewUp() {
       });
     }
 
-    if (morphing && stage) buildMorph(stage, thenRatio, stillRatio);
-    else buildSequence(el);
+    if (morphing && stage) buildMorph(stage, thenRatio, stillRatio, desktop);
+    else buildSequence(el, desktop);
 
     // After the morph the scene is quiet: slow fades only.
     el.querySelectorAll<HTMLElement>('.ch09-fade').forEach((node) => {
@@ -148,33 +150,45 @@ export function BoyGrewUp() {
   );
 }
 
-/* ── The morph (desktop, pinned) ─────────────────────────────────────────── */
+/* ── The morph (pinned, scrubbed — desktop and phones) ───────────────────── */
 
 /** The largest box of this aspect ratio that fits a square stage, in % (CSS fallback for the end state). */
 function fitSquare(ratio: number): { w: number; h: number } {
   return ratio >= 1 ? { w: 100, h: 100 / ratio } : { w: 100 * ratio, h: 100 };
 }
 
-function buildMorph(stage: HTMLElement, fromRatio: number, toRatio: number) {
-  const square = stage.querySelector<HTMLElement>('.ch09-stage');
+/**
+ * Outer size (px) of the print whose photo window has exactly `ratio`, as
+ * large as `box` allows (`mat` = the paper border around the photo) — so at
+ * each end of the morph its photograph is shown whole, nobody cropped.
+ */
+function fitPrint(ratio: number, box: { w: number; h: number }, mat: number): { w: number; h: number } {
+  const innerW = Math.max(0, box.w - 2 * mat);
+  const innerH = Math.max(0, box.h - 2 * mat);
+  const w = Math.min(innerW, innerH * ratio);
+  return { w: w + 2 * mat, h: w / ratio + 2 * mat };
+}
+
+function buildMorph(stage: HTMLElement, fromRatio: number, toRatio: number, desktop: boolean) {
+  const area = stage.querySelector<HTMLElement>('.ch09-stage');
   const frame = stage.querySelector<HTMLElement>('.ch09-frame');
   const thenShot = stage.querySelector<HTMLElement>('.ch09-shot--then');
   const thenPic = stage.querySelector<HTMLElement>('.ch09-shot--then .ch09-shot-pic');
   const stillPic = stage.querySelector<HTMLElement>('.ch09-shot--still .ch09-shot-pic');
-  if (!square || !frame || !thenShot || !thenPic || !stillPic) return;
+  if (!area || !frame || !thenShot || !thenPic || !stillPic) return;
 
   /**
-   * Outer size (px) of the print whose photo window has exactly `ratio`, as
-   * large as the square stage allows — so at each end of the morph its
-   * photograph is shown whole, nobody cropped. Re-measured on every refresh.
+   * The room the print may fill (px), re-measured on every refresh.
+   * Desktop: a square stage. Phones: whatever the screen leaves beside/above
+   * the words, minus the strip kept under the print for its label (the
+   * stage's bottom padding — see the CSS).
    */
-  const print = (ratio: number) => {
-    const mat = thenShot.offsetLeft;
-    const inner = Math.max(0, square.clientWidth - 2 * mat);
-    const w = ratio >= 1 ? inner : inner * ratio;
-    const h = ratio >= 1 ? inner / ratio : inner;
-    return { w: w + 2 * mat, h: h + 2 * mat };
+  const box = () => {
+    if (desktop) return { w: area.clientWidth, h: area.clientWidth };
+    const labelRoom = parseFloat(getComputedStyle(area).paddingBottom) || 0;
+    return { w: area.clientWidth, h: area.clientHeight - labelRoom };
   };
+  const print = (ratio: number) => fitPrint(ratio, box(), thenShot.offsetLeft);
 
   const thenLabel = stage.querySelector('.ch09-shot--then .ch09-shot-label');
   const stillLabel = stage.querySelector('.ch09-shot--still .ch09-shot-label');
@@ -189,15 +203,19 @@ function buildMorph(stage: HTMLElement, fromRatio: number, toRatio: number) {
     scrollTrigger: {
       trigger: stage,
       start: 'top top',
-      end: '+=150%',
-      scrub: 0.8,
+      // Phones: a shorter pin over a one-screen stage (fits 360×640).
+      end: desktop ? '+=150%' : '+=120%',
+      scrub: desktop ? 0.8 : 0.6,
       pin: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
     },
   });
 
-  if (opening) tl.fromTo(opening, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0);
+  // Desktop scrubs the words with the pictures; phones reveal them whole (below).
+  if (desktop && opening) {
+    tl.fromTo(opening, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0);
+  }
 
   // A warm film light sweeps across the print…
   if (band) {
@@ -221,54 +239,141 @@ function buildMorph(stage: HTMLElement, fromRatio: number, toRatio: number) {
   );
 
   // …the past dissolves into warm light…
-  tl.fromTo(
-    thenPic,
-    { opacity: 1, filter: 'sepia(0.2) saturate(0.9) blur(0px)' },
-    { opacity: 0, filter: 'sepia(0.75) saturate(0.7) blur(3px)', duration: 0.32, ease: 'power1.in' },
-    0.3,
-  );
+  if (desktop) {
+    tl.fromTo(
+      thenPic,
+      { opacity: 1, filter: 'sepia(0.2) saturate(0.9) blur(0px)' },
+      { opacity: 0, filter: 'sepia(0.75) saturate(0.7) blur(3px)', duration: 0.32, ease: 'power1.in' },
+      0.3,
+    );
+  } else {
+    // Phones: no blur — the old print just ages a little more as it fades.
+    tl.fromTo(
+      thenPic,
+      { opacity: 1, filter: 'sepia(0.2) saturate(0.9)' },
+      { opacity: 0, filter: 'sepia(0.75) saturate(0.7)', duration: 0.32, ease: 'power1.in' },
+      0.3,
+    );
+  }
 
   // …and the present comes into focus.
-  tl.fromTo(
-    stillPic,
-    { opacity: 0, scale: 1.06, filter: 'blur(4px)' },
-    { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.42, ease: 'power2.out' },
-    0.36,
-  );
+  if (desktop) {
+    tl.fromTo(
+      stillPic,
+      { opacity: 0, scale: 1.06, filter: 'blur(4px)' },
+      { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.42, ease: 'power2.out' },
+      0.36,
+    );
+  } else {
+    tl.fromTo(stillPic, { opacity: 0, scale: 1.06 }, { opacity: 1, scale: 1, duration: 0.42, ease: 'power2.out' }, 0.36);
+  }
 
   if (thenLabel) tl.fromTo(thenLabel, { opacity: 1, y: 0 }, { opacity: 0, y: -6, duration: 0.1 }, 0.42);
   if (stillLabel) tl.fromTo(stillLabel, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.12 }, 0.55);
   if (rule) tl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: 0.14, ease: 'power2.out' }, 0.5);
-  if (growing) tl.fromTo(growing, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.16, ease: 'power2.out' }, 0.58);
+  if (desktop && growing) {
+    tl.fromTo(growing, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.16, ease: 'power2.out' }, 0.58);
+  }
 
   // Hold the finished frame for the last stretch of the pin.
   tl.set({}, {}, 1);
-}
 
-/* ── Mobile / no-morph: the two prints one after another ─────────────────── */
+  if (desktop) return;
 
-function buildSequence(el: HTMLElement) {
-  const thenShot = el.querySelector('.ch09-shot--then');
-  if (thenShot) {
-    gsap.from(thenShot, {
-      opacity: 0,
-      y: 28,
-      duration: 1.4,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: thenShot, start: 'top 85%' },
+  /* Phones only ─────────────────────────────────────────────────────────── */
+
+  // The print rises into place as the stage scrolls up towards its pin.
+  gsap.fromTo(
+    frame,
+    { opacity: 0, y: 48 },
+    {
+      opacity: 1,
+      y: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: stage, start: 'top 90%', end: 'top 30%', scrub: 0.6 },
+    },
+  );
+
+  // The two lines must be read, so they are never left half-faded mid-scrub:
+  // each plays through on its own when the scroll reaches its moment in the
+  // morph, and rewinds if she scrolls back above it.
+  const reveal = { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' };
+  if (opening) {
+    gsap.fromTo(opening, { opacity: 0, y: 14 }, {
+      ...reveal,
+      // Just before the pin engages, while the line is on screen.
+      scrollTrigger: { trigger: stage, start: 'top 15%', toggleActions: 'play none none reverse' },
     });
   }
+  const pin = tl.scrollTrigger;
+  if (growing && pin) {
+    gsap.fromTo(growing, { opacity: 0, y: 14 }, {
+      ...reveal,
+      scrollTrigger: {
+        trigger: stage,
+        // A plain number (measured from the pin itself), so ScrollTrigger doesn't
+        // push it past the pin: just after the print has become the new one.
+        start: () => pin.start + (pin.end - pin.start) * 0.55,
+        toggleActions: 'play none none reverse',
+      },
+    });
+  }
+}
 
+/* ── No morph (a photograph is missing): the prints one after another ───── */
+
+function buildSequence(el: HTMLElement, desktop: boolean) {
+  const thenShot = el.querySelector('.ch09-shot--then');
   const stillShot = el.querySelector('.ch09-shot--still');
-  if (stillShot) {
-    const pic = stillShot.querySelector('.ch09-shot-pic');
-    const label = stillShot.querySelector('.ch09-shot-label');
-    const tl = gsap.timeline({ scrollTrigger: { trigger: stillShot, start: 'top 82%' } });
-    tl.from(stillShot, { opacity: 0, y: 28, duration: 1.5, ease: 'power3.out' });
-    if (pic) tl.from(pic, { scale: 1.06, duration: 2.2, ease: 'power2.out' }, 0);
-    if (label) tl.from(label, { opacity: 0, duration: 1.1, ease: 'power1.out' }, 0.6);
+
+  if (desktop) {
+    if (thenShot) {
+      gsap.from(thenShot, {
+        opacity: 0,
+        y: 28,
+        duration: 1.4,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: thenShot, start: 'top 85%' },
+      });
+    }
+
+    if (stillShot) {
+      const pic = stillShot.querySelector('.ch09-shot-pic');
+      const label = stillShot.querySelector('.ch09-shot-label');
+      const tl = gsap.timeline({ scrollTrigger: { trigger: stillShot, start: 'top 82%' } });
+      tl.from(stillShot, { opacity: 0, y: 28, duration: 1.5, ease: 'power3.out' });
+      if (pic) tl.from(pic, { scale: 1.06, duration: 2.2, ease: 'power2.out' }, 0);
+      if (label) tl.from(label, { opacity: 0, duration: 1.1, ease: 'power1.out' }, 0.6);
+    }
+  } else {
+    // Phones: the prints rise in with the scroll (and sink back when scrolling up).
+    if (thenShot) {
+      gsap.fromTo(
+        thenShot,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: thenShot, start: 'top 90%', end: 'top 55%', scrub: 0.6 },
+        },
+      );
+    }
+
+    if (stillShot) {
+      const pic = stillShot.querySelector('.ch09-shot-pic');
+      const label = stillShot.querySelector('.ch09-shot-label');
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: stillShot, start: 'top 90%', end: 'center 50%', scrub: 0.6 },
+      });
+      tl.fromTo(stillShot, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.6 }, 0);
+      if (pic) tl.fromTo(pic, { scale: 1.06 }, { scale: 1, duration: 1 }, 0);
+      if (label) tl.fromTo(label, { opacity: 0 }, { opacity: 1, duration: 0.35 }, 0.55);
+    }
   }
 
+  // The words: whole-line reveals on enter (never left half-faded).
   el.querySelectorAll('.ch09-copy > *').forEach((node) => {
     gsap.from(node, {
       opacity: 0,

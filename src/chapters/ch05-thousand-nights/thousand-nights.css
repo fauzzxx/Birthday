@@ -387,6 +387,16 @@
   background: linear-gradient(180deg, var(--ch05-cool), var(--gold-light));
 }
 
+/* The way still to go: a faint dotted trail under each piece (like the
+   desktop's ghost line). The golden piece is drawn over it with the scroll. */
+.ch05-vseg--ghost {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(232, 210, 164, 0.38) 0 1.5px,
+    transparent 1.5px 11px
+  );
+}
+
 .ch05-vlaptop {
   position: relative;
   z-index: 1;

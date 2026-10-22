@@ -245,23 +245,66 @@ export function ThousandNights() {
         return;
       }
 
-      // Phones: a simple on-enter timeline — the line runs down, the stars arrive.
+      // Phones: the same idea, vertical. The golden line runs down out of the
+      // screen WITH the scroll — its tip stays at TIP of the viewport — and each
+      // star lights as the line reaches it. Scrolling back up undraws it.
+      // Triggers are always the unmoved holders / buttons, never the animated pieces.
       const list = root.querySelector<HTMLElement>('.ch05-vwrap');
       if (!list) return;
-      const segments = gsap.utils.toArray<HTMLElement>(list.querySelectorAll('.ch05-vseg'));
-      const marks = gsap.utils.toArray<HTMLElement>(list.querySelectorAll('.ch05-vstar'));
-      const tl = gsap.timeline({ scrollTrigger: { trigger: list, start: 'top 78%' } });
-      const laptop = list.querySelector('.ch05-vlaptop');
-      const each = 0.32;
-      if (laptop) tl.from(laptop, { opacity: 0, duration: 1.4, ease: 'power2.out' }, 0);
-      if (segments.length) {
-        tl.from(segments, { scaleY: 0, transformOrigin: '50% 0%', duration: 0.42, stagger: each, ease: 'none' }, 0.3);
+      const TIP = '75%';
+      const scrub = 0.6;
+
+      // The laptop screen wakes, then its glow spreads — just before the line leaves it.
+      const top = list.querySelector('.ch05-vtop');
+      const screen = list.querySelectorAll('.ch05-vlaptop .ch05-laptop__screen');
+      const glow = list.querySelectorAll('.ch05-vlaptop .ch05-laptop__glow');
+      if (top && (screen.length || glow.length)) {
+        const wake = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: top, start: 'top 95%', end: `top ${TIP}`, scrub },
+        });
+        if (screen.length) wake.fromTo(screen, { opacity: 0.15 }, { opacity: 1, duration: 0.7 }, 0);
+        if (glow.length) wake.fromTo(glow, { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.3);
       }
-      if (marks.length) {
-        // Each star arrives just as its piece of line reaches it.
-        const firstStar = 0.3 + Math.max(0, segments.length - marks.length) * each + 0.12;
-        tl.from(marks, { opacity: 0, x: -10, duration: 0.8, stagger: each, ease: 'power3.out' }, firstStar);
-      }
+
+      // Each piece of line draws while its own stretch passes the tip. Pieces sit
+      // inside position:relative holders, so offsetTop / offsetHeight are measured
+      // from the holder (re-read on every refresh, e.g. after a memory opens).
+      list.querySelectorAll<HTMLElement>('.ch05-vseg:not(.ch05-vseg--ghost)').forEach((seg) => {
+        const holder = seg.parentElement;
+        if (!holder) return;
+        gsap.fromTo(
+          seg,
+          { scaleY: 0, transformOrigin: '50% 0%' },
+          {
+            scaleY: 1,
+            transformOrigin: '50% 0%',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: holder,
+              start: () => `top+=${seg.offsetTop} ${TIP}`,
+              end: () => `top+=${seg.offsetTop + Math.max(1, seg.offsetHeight)} ${TIP}`,
+              scrub,
+            },
+          },
+        );
+      });
+
+      // Each star lights as the tip passes through it (dim, never hidden — always tappable).
+      list.querySelectorAll<HTMLElement>('.ch05-vstar').forEach((star) => {
+        const mark = star.querySelector('.ch05-vstar__mark');
+        if (!mark) return;
+        gsap.fromTo(
+          mark,
+          { opacity: 0.28, scale: 0.45 },
+          {
+            opacity: 1,
+            scale: 1,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: star, start: 'center 79%', end: 'center 71%', scrub },
+          },
+        );
+      });
     },
     [isDesktop, fractions],
   );
@@ -407,12 +450,14 @@ export function ThousandNights() {
         ) : (
           <div className="ch05-vwrap">
             <div className="ch05-vtop">
+              <span className="ch05-vseg ch05-vseg--from-screen ch05-vseg--ghost" aria-hidden="true" />
               <span className="ch05-vseg ch05-vseg--from-screen" aria-hidden="true" />
               <LaptopIcon className="ch05-vlaptop" />
               <Moon className="ch05-moon--phone" />
               <HiddenNote text={thousandNights.hiddenNote} side="left" className="ch05-note ch05-note--phone" />
             </div>
             <p className="ch05-vhint">
+              <span className="ch05-vseg ch05-vseg--ghost" aria-hidden="true" />
               <span className="ch05-vseg" aria-hidden="true" />
               {thousandNights.instruction}
             </p>
@@ -421,6 +466,7 @@ export function ThousandNights() {
                 const open = selected === i;
                 return (
                   <li key={m.title} className="ch05-vitem">
+                    <span className="ch05-vseg ch05-vseg--ghost" aria-hidden="true" />
                     <span className="ch05-vseg" aria-hidden="true" />
                     <button
                       id={mobileStarId(i)}

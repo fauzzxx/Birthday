@@ -85,27 +85,26 @@ export function Strength() {
         .fromTo(keyline, { ...HIDDEN }, { ...SHOWN, duration: 2.8 }, 0.4);
     }
 
-    // Comfort arriving: the warm light gathers from the turn until the key line.
+    // Comfort arriving: the warm light gathers with the scroll, from the turn
+    // until the key line — on phones too — and ebbs again if she scrolls back.
     const warmth = el.querySelector('.ch07-warmth');
     const turn = el.querySelector('.ch07-turn');
     if (warmth && turn && key) {
-      if (desktop) {
-        gsap.fromTo(
-          warmth,
-          { opacity: 0 },
-          {
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: { trigger: turn, start: 'top 85%', endTrigger: key, end: 'center 55%', scrub: 1 },
+      gsap.fromTo(
+        warmth,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: turn,
+            start: 'top 85%',
+            endTrigger: key,
+            end: 'center 55%',
+            scrub: desktop ? 1 : 0.8,
           },
-        );
-      } else {
-        gsap.fromTo(
-          warmth,
-          { opacity: 0 },
-          { opacity: 1, duration: 4.5, ease: 'power1.inOut', scrollTrigger: { trigger: turn, start: 'top 70%' } },
-        );
-      }
+        },
+      );
     }
   });
 

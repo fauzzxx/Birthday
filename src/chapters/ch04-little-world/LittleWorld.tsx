@@ -180,19 +180,65 @@ export function LittleWorld() {
     const controls = all('.ch04-controls', scene);
     if (controls.length) tl.from(controls, { autoAlpha: 0, y: 10, duration: 0.9 }, 0.7);
 
-    // The prints settle onto the wall (beneath the TV on phones, so they get their own trigger).
+    // The prints settle onto the wall.
     const frames = all('.ch04-frame__inner', scene);
-    if (frames.length) {
-      const vars: gsap.TweenVars = {
-        autoAlpha: 0,
-        y: -18,
-        rotation: (i: number) => (i % 2 ? 4 : -4),
-        duration: 1.3,
-        stagger: 0.16,
-        ease: 'power3.out',
-      };
-      if (desktop) tl.from(frames, vars, 0.25);
-      else gsap.from(frames, { ...vars, scrollTrigger: { trigger: frames[0], start: 'top 88%' } });
+    if (desktop) {
+      if (frames.length) {
+        tl.from(
+          frames,
+          {
+            autoAlpha: 0,
+            y: -18,
+            rotation: (i: number) => (i % 2 ? 4 : -4),
+            duration: 1.3,
+            stagger: 0.16,
+            ease: 'power3.out',
+          },
+          0.25,
+        );
+      }
+      return;
+    }
+
+    // Phones (prints beneath the TV): the scroll carries each print up onto the
+    // wall, then lets it drift at its own depth while it passes — and takes it
+    // back off on the way up. The outer .ch04-frame is the trigger and is never
+    // moved itself, so the measurements stay true.
+    frames.forEach((inner, i) => {
+      const frame = inner.parentElement;
+      if (!frame) return;
+      const depth = parseFloat(frame.style.getPropertyValue('--depth')) || 8;
+      gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: 0.7 },
+        })
+        .fromTo(
+          inner,
+          { autoAlpha: 0, y: 56, rotation: i % 2 ? 5 : -5 },
+          { autoAlpha: 1, y: 0, rotation: 0, duration: 0.3, ease: 'power2.out' },
+        )
+        .to(inner, { y: -depth * 2, duration: 0.7 });
+    });
+
+    // Phones: gentle depth for the room. As the set scrolls in, the lamp's warm
+    // pool gathers on the left and the TV's light spreads across the wall (the
+    // glow itself still follows the on/off state in CSS).
+    const room = scene.querySelector<HTMLElement>('.ch04-room');
+    if (room) {
+      const light = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: room, start: 'top 85%', end: 'center 45%', scrub: 0.8 },
+      });
+      light.fromTo(room, { '--ch04-lamp': 0.3 }, { '--ch04-lamp': 1, duration: 1 }, 0);
+      const lamp = scene.querySelector('.ch04-lamp');
+      if (lamp) light.fromTo(lamp, { opacity: 0.15, scale: 0.86 }, { opacity: 1, scale: 1, duration: 1 }, 0);
+      const glow = scene.querySelector('.ch04-glow');
+      if (glow) {
+        // Grows out of the screen (the gradient's centre, --gx / --gy on phones).
+        const origin = '39% 50%';
+        light.fromTo(glow, { scale: 0.72, transformOrigin: origin }, { scale: 1, transformOrigin: origin, duration: 1 }, 0);
+      }
     }
   });
 
@@ -229,6 +275,8 @@ export function LittleWorld() {
 
           <div className="ch04-scene" ref={sceneRef} data-visible={inView}>
             <div className="ch04-glow" aria-hidden="true" />
+            {/* Phones only: the lamp's warm pool beside the set (desktop has the room-wide lamp leak). */}
+            <div className="ch04-lamp" aria-hidden="true" />
 
             {/* DOM order = phone reading/focus order (TV, its knob, then the prints);
                 on desktop the wall is layered behind the room with z-index. */}

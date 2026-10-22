@@ -1,0 +1,163 @@
+/* ==========================================================================
+   CHAPTER 11 — The hands I want to take care of now.
+   A dark warm room, one lamp above, a few motes of dust. Intimate and still:
+   the only real movement is light passing from her to him, and back.
+   ========================================================================== */
+
+.ch11 {
+  /* Glows may reach past the edges; never scroll sideways. */
+  overflow-x: clip;
+}
+
+/* ── The room: lamp + dust stay with the reader through the scene ── */
+
+.ch11-room {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ch11-room__view {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  /* Feathered so the lamp never meets the neighbouring scenes with an edge. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 80%, transparent 100%);
+}
+
+.ch11[data-offscreen='true'] .light-leak::before {
+  animation-play-state: paused;
+}
+
+/* ── Her hands + the memory ───────────────────────────────── */
+
+.ch11-intro {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2xl);
+  text-align: center;
+}
+
+.ch11-cameo {
+  position: relative;
+  isolation: isolate;
+  width: min(64vw, 15rem);
+}
+
+/* A small pool of lamplight around the photograph. */
+.ch11-cameo::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 44%;
+  width: 190%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(242, 184, 102, 0.2),
+    rgba(242, 184, 102, 0.06) 55%,
+    rgba(242, 184, 102, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.ch11-photo {
+  z-index: 1;
+}
+
+.ch11-photo .photo__frame {
+  outline: 1px solid rgba(201, 164, 106, 0.42);
+  outline-offset: 9px;
+  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.7);
+}
+
+.ch11-photo .photo__caption {
+  margin-top: 1.1em;
+  text-align: center;
+  color: var(--fg-soft);
+}
+
+/* Jasmine — the fragrance of bedtime — tucked behind the photograph. */
+.ch11-jasmine {
+  position: absolute;
+  z-index: 0;
+  left: -22%;
+  bottom: 16%;
+  width: 36%;
+  max-width: none;
+  color: var(--accent-deco);
+  opacity: 0.6;
+  rotate: -16deg;
+  pointer-events: none;
+}
+
+.ch11-memory {
+  display: grid;
+  gap: var(--space-l);
+  max-width: 30rem;
+}
+
+.ch11-memory > :first-child {
+  color: var(--fg-soft);
+}
+
+@media (min-width: 900px) {
+  .ch11-intro:not(.ch11-intro--solo) {
+    grid-template-columns: auto minmax(0, 30rem);
+    justify-content: center;
+    justify-items: start;
+    align-items: center;
+    column-gap: clamp(3.5rem, 7vw, 7rem);
+    text-align: start;
+  }
+
+  .ch11-cameo {
+    width: clamp(13rem, 19vw, 17.5rem);
+  }
+}
+
+/* ── Light passing, and the key line it waits for ─────────── */
+
+.ch11-passage {
+  display: grid;
+  justify-items: center;
+  margin-top: clamp(5rem, 15vh, 9.5rem);
+  text-align: center;
+}
+
+.ch11-light {
+  width: min(100%, 38rem);
+}
+
+.ch11-light__svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ch11-light__trail {
+  filter: drop-shadow(0 0 3px rgba(255, 214, 150, 0.85));
+}
+
+.ch11-key {
+  margin-top: clamp(1.25rem, 4vh, 3rem);
+}
+
+.ch11-keyline {
+  margin-inline: auto;
+  text-shadow: 0 0 1.4em rgba(242, 184, 102, 0.22);
+}
+
+/* ── The promise ──────────────────────────────────────────── */
+
+.ch11-promise {
+  max-width: 34ch;
+  margin: clamp(4.5rem, 13vh, 8.5rem) auto 0;
+  color: var(--fg-soft);
+  text-align: center;
+}

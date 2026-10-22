@@ -1,0 +1,173 @@
+/* ==========================================================================
+   DESIGN TOKENS — The Woman Who Made Me
+   Palette: warm ivory, deep burgundy, antique gold, dusty rose, deep espresso.
+   Components use the SEMANTIC variables (--bg, --fg, --accent…) so they read
+   correctly inside any [data-theme] scene.
+   ========================================================================== */
+
+:root {
+  /* ── Core palette ─────────────────────────────────────── */
+  --ivory: #f6efe5;
+  --paper: #fbf6ee;
+  --linen: #efe5d6;
+  --parchment: #e9dcc6;
+  --burgundy: #64263a;
+  --burgundy-deep: #44172a;
+  --wine: #2c0f1b;
+  --gold: #c9a46a;
+  --gold-light: #e8d2a4;
+  --gold-pale: #f3e6c8;
+  --gold-ink: #7d5e2f; /* gold that passes contrast on light backgrounds */
+  --gold-glow: rgba(233, 196, 128, 0.55);
+  --rose: #dca5a5;
+  --rose-light: #f0d6d2;
+  --rose-ink: #8e4c55;
+  --espresso: #30211f;
+  --espresso-deep: #1f1513;
+  --ink: #2b1f1d;
+  --ink-soft: #5e4b45;
+  --ink-faint: #8c7a72;
+  --cream: #f3e9da;
+  --cream-soft: rgba(243, 233, 218, 0.76);
+  --cream-faint: rgba(243, 233, 218, 0.5);
+  --lamp: #f2b866;
+  --tv-blue: #8fb7d9;
+  --notebook-line: #a9c3dc;
+  --notebook-margin: #d98b8b;
+
+  /* ── Scene backgrounds (one per theme) ────────────────── */
+  --theme-night-bg: #110d12;
+  --theme-midnight-bg: #0e0f1d;
+  --theme-dusk-bg: #2a1c1d;
+  --theme-paper-bg: #f3eadc;
+  --theme-ivory-bg: #f6efe5;
+  --theme-rose-bg: #f1e2dc;
+  --theme-dawn-bg: #f7eee2;
+  --theme-espresso-bg: #221817;
+  --theme-lamplight-bg: #1a1210;
+  --theme-burgundy-bg: #3b1222;
+
+  /* ── Typography ───────────────────────────────────────── */
+  --font-display: 'Cormorant Garamond', 'Cormorant', 'EB Garamond', Garamond, Georgia, 'Times New Roman', serif;
+  --font-body: 'Manrope Variable', 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-hand: 'Caveat Variable', 'Caveat', 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
+
+  /* Fluid type scale (min @ 360px → max @ 1440px) */
+  --step--2: clamp(0.72rem, 0.7rem + 0.1vw, 0.78rem);
+  --step--1: clamp(0.84rem, 0.81rem + 0.15vw, 0.94rem);
+  --step-0: clamp(1rem, 0.95rem + 0.24vw, 1.13rem);
+  --step-1: clamp(1.2rem, 1.11rem + 0.42vw, 1.45rem);
+  --step-2: clamp(1.44rem, 1.28rem + 0.7vw, 1.9rem);
+  --step-3: clamp(1.73rem, 1.47rem + 1.14vw, 2.55rem);
+  --step-4: clamp(2.07rem, 1.66rem + 1.8vw, 3.4rem);
+  --step-5: clamp(2.49rem, 1.85rem + 2.82vw, 4.6rem);
+  --step-6: clamp(2.8rem, 1.9rem + 4.2vw, 6.4rem);
+
+  /* ── Space ────────────────────────────────────────────── */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.25rem;
+  --space-xl: 3.5rem;
+  --space-2xl: 5rem;
+  --space-3xl: 8rem;
+  --gutter: clamp(1rem, 4vw, 3rem); /* never less than 16px on phones */
+  --section-pad: clamp(5.5rem, 12vw, 11rem);
+  --measure: 36rem;
+  --measure-wide: 46rem;
+  --container: 76rem;
+
+  /* ── Shape & depth ────────────────────────────────────── */
+  --radius-s: 4px;
+  --radius-m: 10px;
+  --radius-l: 22px;
+  --radius-pill: 999px;
+  --shadow-print: 0 1px 1px rgba(30, 18, 14, 0.08), 0 8px 18px -6px rgba(30, 18, 14, 0.28),
+    0 30px 60px -24px rgba(30, 18, 14, 0.35);
+  --shadow-soft: 0 18px 50px -20px rgba(20, 10, 8, 0.45);
+  --glow-gold: 0 0 0 1px rgba(201, 164, 106, 0.35), 0 0 28px rgba(233, 196, 128, 0.22);
+
+  /* ── Motion ───────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.33, 0, 0.2, 1);
+  --dur-fast: 180ms;
+  --dur-med: 420ms;
+  --dur-slow: 900ms;
+
+  /* ── Layers ───────────────────────────────────────────── */
+  --z-scene: 1;
+  --z-overlay: 20;
+  --z-chrome: 40; /* nav + audio controls */
+  --z-grain: 60;
+  --z-dialog: 80;
+}
+
+/* ==========================================================================
+   SCENE THEMES — set data-theme on a section; children inherit semantics.
+   --accent is text-safe; --accent-deco is for lines/ornaments only.
+   ========================================================================== */
+[data-theme] {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+/* Dark scenes */
+[data-theme='night'],
+[data-theme='midnight'],
+[data-theme='dusk'],
+[data-theme='espresso'],
+[data-theme='lamplight'],
+[data-theme='burgundy'] {
+  --fg: var(--cream);
+  --fg-soft: var(--cream-soft);
+  --fg-faint: var(--cream-faint);
+  --accent: var(--gold);
+  --accent-strong: var(--gold-light);
+  --accent-deco: var(--gold);
+  --line: rgba(201, 164, 106, 0.32);
+  --surface: rgba(255, 244, 228, 0.045);
+  --surface-strong: rgba(255, 244, 228, 0.09);
+  --focus: var(--gold-light);
+  --scheme: dark;
+  color-scheme: dark;
+}
+[data-theme='night'] { --bg: var(--theme-night-bg); }
+[data-theme='midnight'] { --bg: var(--theme-midnight-bg); }
+[data-theme='dusk'] { --bg: var(--theme-dusk-bg); }
+[data-theme='espresso'] { --bg: var(--theme-espresso-bg); }
+[data-theme='lamplight'] { --bg: var(--theme-lamplight-bg); }
+[data-theme='burgundy'] {
+  --bg: var(--theme-burgundy-bg);
+  --fg-soft: rgba(246, 232, 220, 0.8);
+  --line: rgba(232, 210, 164, 0.36);
+}
+
+/* Light scenes */
+[data-theme='paper'],
+[data-theme='ivory'],
+[data-theme='rose'],
+[data-theme='dawn'] {
+  --fg: var(--ink);
+  --fg-soft: var(--ink-soft);
+  --fg-faint: var(--ink-faint);
+  --accent: var(--gold-ink);
+  --accent-strong: var(--burgundy);
+  --accent-deco: var(--gold);
+  --line: rgba(125, 94, 47, 0.28);
+  --surface: rgba(255, 252, 246, 0.6);
+  --surface-strong: rgba(255, 252, 246, 0.88);
+  --focus: var(--burgundy);
+  --scheme: light;
+  color-scheme: light;
+}
+[data-theme='paper'] { --bg: var(--theme-paper-bg); }
+[data-theme='ivory'] { --bg: var(--theme-ivory-bg); }
+[data-theme='rose'] {
+  --bg: var(--theme-rose-bg);
+  --accent: var(--rose-ink);
+}
+[data-theme='dawn'] { --bg: var(--theme-dawn-bg); }

@@ -1,0 +1,320 @@
+/* ==========================================================================
+   CHAPTER NAV — present, but never louder than the story.
+   ========================================================================== */
+
+.chapter-nav {
+  --focus: var(--gold-light);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 700ms var(--ease-out),
+    visibility 0s linear 700ms;
+}
+.chapter-nav[data-visible] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 700ms var(--ease-out),
+    visibility 0s;
+}
+
+/* ── Desktop rail ───────────────────────────────────────── */
+.chapter-nav__rail {
+  position: fixed;
+  top: 50%;
+  right: max(14px, env(safe-area-inset-right));
+  z-index: var(--z-chrome);
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  transform: translateY(-50%);
+  padding: 12px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(24, 15, 14, 0.38);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(201, 164, 106, 0.16);
+}
+
+@media (min-width: 900px) {
+  .chapter-nav__rail {
+    display: flex;
+  }
+}
+
+.chapter-nav__progress {
+  position: absolute;
+  top: 16px;
+  bottom: 62px;
+  right: 50%;
+  width: 1px;
+  translate: 0.5px 0;
+  background: rgba(201, 164, 106, 0.18);
+  pointer-events: none;
+}
+.chapter-nav__progress::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  transform-origin: top;
+  transform: scaleY(var(--progress, 0));
+  box-shadow: 0 0 6px rgba(233, 196, 128, 0.6);
+}
+
+.chapter-nav__marks {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+
+.chapter-nav__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 26px;
+  color: var(--cream);
+  text-decoration: none;
+}
+
+.chapter-nav__tick {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 210, 164, 0.6);
+  background: rgba(24, 15, 14, 0.9);
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    background var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out);
+}
+.chapter-nav__mark[aria-current] .chapter-nav__tick {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+  transform: scale(1.35);
+  box-shadow: 0 0 10px rgba(233, 196, 128, 0.85);
+}
+.chapter-nav__mark:hover .chapter-nav__tick {
+  transform: scale(1.3);
+  border-color: var(--gold-light);
+}
+
+/* Label slides out to the left on hover / focus */
+.chapter-nav__label {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  display: flex;
+  gap: 0.6em;
+  align-items: baseline;
+  white-space: nowrap;
+  padding: 0.4em 0.85em;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.02rem;
+  color: var(--cream);
+  background: rgba(24, 15, 14, 0.82);
+  border: 1px solid rgba(201, 164, 106, 0.25);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(6px, -50%);
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+.chapter-nav__label-num {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+.chapter-nav__mark:hover .chapter-nav__label,
+.chapter-nav__mark:focus-visible .chapter-nav__label {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.chapter-nav__menu-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-top: 6px;
+  border-radius: 50%;
+  color: var(--gold-light);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.chapter-nav__menu-btn:hover {
+  background: rgba(201, 164, 106, 0.2);
+}
+.chapter-nav__menu-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Mobile pill ────────────────────────────────────────── */
+.chapter-nav__pill {
+  position: fixed;
+  left: max(var(--gutter), env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: var(--z-chrome);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: calc(100vw - var(--gutter) * 2 - 108px);
+  min-height: 46px;
+  padding: 0 1rem 0 0.9rem;
+  border-radius: var(--radius-pill);
+  color: var(--cream);
+  background: rgba(24, 15, 14, 0.66);
+  border: 1px solid rgba(201, 164, 106, 0.28);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.5);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.chapter-nav__pill:active {
+  transform: scale(0.97);
+}
+.chapter-nav__pill-num {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+}
+.chapter-nav__pill-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.02rem;
+}
+
+@media (min-width: 900px) {
+  .chapter-nav__pill {
+    display: none;
+  }
+}
+
+/* ── Full chapter list ──────────────────────────────────── */
+.chapter-menu {
+  --fg: var(--cream);
+  --focus: var(--gold-light);
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: min(46rem, calc(100dvh - 2rem));
+  padding: 0;
+  border: 1px solid rgba(201, 164, 106, 0.3);
+  border-radius: var(--radius-l);
+  color: var(--cream);
+  background:
+    radial-gradient(120% 60% at 100% 0%, rgba(201, 164, 106, 0.12), transparent 60%),
+    linear-gradient(180deg, #24161a, #170f11);
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.chapter-menu[open] {
+  animation: chapter-menu-in 500ms var(--ease-out) both;
+}
+.chapter-menu::backdrop {
+  background: rgba(12, 7, 8, 0.7);
+  backdrop-filter: blur(4px);
+}
+@keyframes chapter-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+.chapter-menu__inner {
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.chapter-menu__head {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  padding-right: 3rem;
+  margin-bottom: 1.25rem;
+}
+.chapter-menu__head .t-eyebrow {
+  color: var(--gold);
+}
+.chapter-menu__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-4);
+  line-height: 1;
+}
+.chapter-menu__close {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 164, 106, 0.3);
+}
+.chapter-menu__close:hover {
+  background: rgba(201, 164, 106, 0.18);
+}
+.chapter-menu__close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.chapter-menu__list {
+  margin: 0;
+  display: grid;
+}
+.chapter-menu__item {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.7rem 0.6rem;
+  border-top: 1px solid rgba(201, 164, 106, 0.14);
+  color: var(--cream);
+  text-decoration: none;
+  border-radius: 6px;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    padding var(--dur-med) var(--ease-out);
+}
+.chapter-menu__item:hover {
+  background: rgba(201, 164, 106, 0.1);
+  padding-left: 1rem;
+}
+.chapter-menu__item[aria-current] .chapter-menu__name {
+  color: var(--gold-light);
+}
+.chapter-menu__num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+.chapter-menu__name {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+
+@media print {
+  .chapter-nav,
+  .chapter-menu {
+    display: none !important;
+  }
+}

@@ -1,0 +1,229 @@
+/* ==========================================================================
+   CHAPTER 02 — The little boy who needed you  (theme: night)
+   A dark room; a lamp switches on; its circle of light reveals the portrait.
+   The markup below is the finished, lit scene; GSAP animates into it.
+   ========================================================================== */
+
+.ch02 {
+  /* The lamp's glow and the print's bleed may reach past the column edges. */
+  overflow-x: clip;
+}
+
+.ch02-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'head'
+    'photo'
+    'text'
+    'key';
+  align-items: start;
+}
+
+.ch02-head.chapter__head {
+  grid-area: head;
+  margin-bottom: var(--space-xl);
+}
+
+/* ── The portrait under the lamp ─────────────────────────── */
+
+.ch02-photo {
+  /* Centre of the lamp's light — near Ma's side of the portrait; leans a touch toward the cursor. */
+  --lx: calc(66% + var(--px, 0) * 7%);
+  --ly: calc(36% + var(--py, 0) * 7%);
+  /* Room around the print so its shadow sits inside the light's mask. */
+  --ch02-bleed: clamp(0.75rem, 3.6vw, 2.75rem); /* never wider than the page gutter */
+  grid-area: photo;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 44rem;
+  margin-bottom: var(--space-xl);
+}
+
+/* The warm pool of lamplight on the wall behind the print. */
+.ch02-pool {
+  position: absolute;
+  z-index: 0;
+  left: var(--lx);
+  top: var(--ly);
+  width: 150%;
+  aspect-ratio: 1;
+  /* Percentage margins resolve against the width: this centres the square on (--lx, --ly). */
+  margin: -75% 0 0 -75%;
+  pointer-events: none;
+}
+.ch02-pool .light-leak {
+  overflow: visible;
+}
+.ch02-pool .light-leak::before {
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+.ch02-print {
+  position: relative;
+  z-index: 1;
+  padding: var(--ch02-bleed);
+  margin: calc(var(--ch02-bleed) * -1);
+}
+
+/* While the lamp is warming up, only its circle of light shows the photograph. */
+.ch02-print[data-lamp='dim'] {
+  -webkit-mask-image: radial-gradient(
+    circle at var(--lx) var(--ly),
+    #000 var(--r, 110%),
+    transparent calc(var(--r, 110%) + 32%)
+  );
+  mask-image: radial-gradient(
+    circle at var(--lx) var(--ly),
+    #000 var(--r, 110%),
+    transparent calc(var(--r, 110%) + 32%)
+  );
+}
+/* Keyboard focus on the photo always gets full light. */
+.ch02-print[data-lamp='dim']:focus-within {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* The little note, tucked at the top-left corner of the print. */
+.ch02-note {
+  top: -12px;
+  left: -12px;
+}
+
+/* ── The nights, and what she did ───────────────────────── */
+
+.ch02-text {
+  grid-area: text;
+  max-width: 32rem;
+}
+
+.ch02-beats {
+  display: grid;
+  gap: var(--space-s);
+}
+
+.t-lead.ch02-beat {
+  max-width: 24ch;
+  color: var(--fg);
+}
+
+.ch02-care {
+  position: relative;
+  display: grid;
+  gap: clamp(0.5rem, 1.1vw, 0.85rem);
+  margin: clamp(2.25rem, 5vw, 3.5rem) 0 0;
+  padding: 0 0 0 1.85rem;
+  list-style: none;
+}
+
+/* The cord the small lamps hang on. */
+.ch02-care::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 3px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--line) 18%, var(--line) 82%, transparent);
+}
+
+.ch02-care__line {
+  /* 0 = dark, 1 = lit. GSAP tweens it; the resting (final) state is lit. */
+  --lit: 1;
+  position: relative;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1.3;
+  color: var(--fg);
+  color: color-mix(in srgb, var(--fg) calc(var(--lit) * 100%), var(--fg-faint));
+}
+
+.ch02-care__lamp {
+  position: absolute;
+  top: calc(0.65em - 3.5px);
+  left: -1.85rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  opacity: calc(0.2 + var(--lit) * 0.8);
+  box-shadow: 0 0 calc(var(--lit) * 12px) calc(var(--lit) * 2px) rgba(255, 196, 120, 0.55);
+}
+
+/* ── The key line, on its own ──────────────────────────── */
+
+.ch02-key {
+  grid-area: key;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  margin-top: clamp(5rem, 13vw, 10rem);
+}
+
+.ch02-key__cord {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: clamp(3rem, 7vw, 5.5rem);
+  margin-bottom: var(--space-l);
+  background: linear-gradient(180deg, rgba(201, 164, 106, 0), var(--accent-deco));
+}
+/* A bead of light at the end of the cord. */
+.ch02-key__cord::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  box-shadow: 0 0 10px 2px rgba(255, 210, 150, 0.5);
+}
+
+.keyline.ch02-keyline {
+  max-width: 28ch;
+  margin-inline: auto;
+}
+
+/* ── Desktop: photo ~55%, words ~45%, the key line across ── */
+@media (min-width: 900px) {
+  .ch02-grid {
+    grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      'photo head'
+      'photo text'
+      'key key';
+    column-gap: clamp(3rem, 6vw, 6.5rem);
+  }
+
+  /* Centred against the words beside it: the title sits a little higher, like a caption on a wall. */
+  .ch02-photo {
+    align-self: center;
+    max-width: none;
+    margin: 0;
+  }
+
+  .ch02-head.chapter__head {
+    margin-bottom: var(--space-l);
+  }
+
+  /* Without a photograph the words simply take the stage. */
+  .ch02-grid--solo {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'head'
+      'text'
+      'key';
+  }
+}

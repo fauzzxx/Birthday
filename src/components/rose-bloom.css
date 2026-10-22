@@ -1,0 +1,138 @@
+/* The rose: a tall section whose stage sticks to the screen while you scroll through it. */
+.rose {
+  position: relative;
+  height: 260vh;
+  background: var(--theme-night-bg);
+}
+
+.rose__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(60% 55% at 50% 50%, rgba(100, 38, 58, 0.5), transparent 72%);
+}
+
+.rose__eyebrow {
+  position: absolute;
+  top: max(2rem, 7vh);
+  left: 50%;
+  z-index: 2;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--gutter));
+  transform: translateX(-50%);
+  text-align: center;
+  color: var(--gold);
+}
+
+.rose__hint {
+  position: absolute;
+  bottom: max(1.5rem, 5vh);
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--cream-soft);
+  white-space: nowrap;
+}
+
+.rose__hint-line {
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(180deg, var(--gold-light), transparent);
+  transform-origin: top;
+  animation: rose-hint 2.2s var(--ease-in-out) infinite;
+}
+
+@keyframes rose-hint {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+.rose__glow {
+  position: absolute;
+  width: min(90vmin, 900px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 210, 150, 0.55), rgba(220, 140, 120, 0.22) 45%, transparent 72%);
+  filter: blur(10px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.rose__media {
+  position: relative;
+  z-index: 1;
+  width: min(78vmin, 640px);
+  aspect-ratio: 1;
+  /* Feather the edges so the video's background melts into the scene. */
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+}
+
+.rose__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* A black background disappears; the rose glows over the burgundy. */
+  mix-blend-mode: lighten;
+}
+
+.rose__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 24px rgba(201, 90, 110, 0.35));
+}
+
+.rose__line {
+  position: absolute;
+  bottom: clamp(3rem, 12vh, 7rem);
+  left: 50%;
+  z-index: 2;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--gutter));
+  transform: translateX(-50%);
+  font-family: var(--font-hand);
+  font-size: var(--step-3);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--gold-light);
+  text-shadow: 0 0 18px rgba(233, 196, 128, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rose {
+    height: auto;
+  }
+  .rose__stage {
+    position: relative;
+  }
+}
+html.force-reduced-motion .rose {
+  height: auto;
+}
+html.force-reduced-motion .rose__stage {
+  position: relative;
+}

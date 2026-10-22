@@ -1,0 +1,372 @@
+/* ==========================================================================
+   CHAPTER 09 — The boy grew up. Your love never did.  (theme: espresso)
+   One print that grows up, then a quiet, accountable letter-like column.
+   Default markup = the static diptych (reduced motion / no JS). The pinned
+   single-frame morph is switched on by [data-mode='morph'] (desktop motion).
+   ========================================================================== */
+
+.ch09 {
+  --ch09-mat: clamp(6px, 0.85vw, 12px);
+  --ch09-mat-color: #f3ebdf;
+  --ch09-mat-aged: #e6d5b8;
+  --ch09-print-shadow: 0 2px 3px rgba(0, 0, 0, 0.28), 0 30px 60px -28px rgba(0, 0, 0, 0.8);
+  --ch09-stage: min(70vh, 44vw, 42rem);
+}
+
+/* ── Title ─────────────────────────────────────────────── */
+
+.ch09-head {
+  margin-bottom: clamp(3.5rem, 9vw, 6.5rem);
+}
+
+.ch09-title-line {
+  display: block;
+}
+
+.ch09-title-line--soft {
+  font-style: italic;
+  color: var(--accent);
+}
+
+/* ── The two prints (default: stacked on phones, side by side on desktop) ── */
+
+.ch09-morph {
+  display: grid;
+  gap: clamp(2.75rem, 7vw, 4rem);
+  align-items: center;
+}
+
+.ch09-stage {
+  position: relative;
+  min-width: 0;
+}
+
+.ch09-frame {
+  display: grid;
+  gap: clamp(2.5rem, 8vw, 3.5rem);
+}
+
+.ch09-shot {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+}
+
+.ch09-shot--still {
+  width: 84%;
+  justify-self: end;
+}
+
+.ch09-shot-print {
+  padding: var(--ch09-mat);
+  background: var(--ch09-mat-color);
+  box-shadow: var(--ch09-print-shadow);
+}
+
+/* The old photograph sits on older, yellowed paper. */
+.ch09-shot--then .ch09-shot-print {
+  background: var(--ch09-mat-aged);
+}
+
+.ch09-shot-media {
+  position: relative;
+  aspect-ratio: var(--ch09-ratio, 4 / 3);
+  overflow: hidden;
+  background: #2a1f1c;
+  isolation: isolate;
+}
+
+.ch09-shot-pic {
+  position: absolute;
+  inset: 0;
+}
+
+.ch09-shot-lqip,
+.ch09-shot-img,
+.ch09-shot-error {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ch09-shot-lqip {
+  filter: blur(14px);
+  transform: scale(1.1);
+}
+
+.ch09-shot-img {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-soft);
+}
+
+.ch09-shot[data-state='loaded'] .ch09-shot-img {
+  opacity: 1;
+}
+
+/* Vintage tone + a soft vignette, like an old studio print. */
+.ch09-shot--then .ch09-shot-pic {
+  filter: sepia(0.2) saturate(0.9);
+}
+
+.ch09-shot--then .ch09-shot-pic::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: inset 0 0 clamp(30px, 6vw, 80px) rgba(30, 14, 8, 0.5);
+}
+
+.ch09-shot-label {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  margin-top: 1rem;
+}
+
+.ch09-shot-label::before {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: var(--accent-deco);
+  opacity: 0.75;
+}
+
+/* The film light used by the morph (hidden otherwise). */
+.ch09-sweep {
+  display: none;
+  position: absolute;
+  inset: var(--ch09-mat);
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.ch09-sweep-band {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 62%;
+  opacity: 0;
+}
+
+.ch09-sweep-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: skewX(-12deg);
+  background: linear-gradient(
+    100deg,
+    transparent 6%,
+    rgba(255, 140, 70, 0.22) 28%,
+    rgba(255, 206, 150, 0.8) 46%,
+    rgba(255, 238, 205, 0.95) 52%,
+    rgba(255, 168, 96, 0.38) 68%,
+    transparent 92%
+  );
+}
+
+/* ── The words beside the prints ───────────────────────── */
+
+.ch09-copy {
+  display: grid;
+  gap: var(--space-l);
+  max-width: 32rem;
+}
+
+.ch09-opening {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--step-3);
+  line-height: 1.24;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+.ch09-rule {
+  display: block;
+  width: 4rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-deco), transparent);
+  transform-origin: left center;
+}
+
+.ch09-growing {
+  color: var(--fg-soft);
+}
+
+@media (min-width: 900px) {
+  /* Reduced motion / fallback on desktop: a diptych beside the words. */
+  .ch09-morph {
+    grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 1fr);
+    column-gap: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  .ch09-frame {
+    grid-template-columns: var(--ch09-cols, 1fr);
+    column-gap: clamp(1.25rem, 2.4vw, 2.25rem);
+    align-items: start;
+  }
+
+  .ch09-shot--still {
+    width: auto;
+    justify-self: stretch;
+  }
+
+  /* ── The morph: one print inside a square stage, pinned ── */
+
+  .ch09-morph[data-mode='morph'] {
+    height: 100vh;
+    height: 100svh;
+    grid-template-columns: auto minmax(16rem, 28rem);
+    justify-content: center;
+    align-content: center;
+    column-gap: clamp(3rem, 6vw, 6.5rem);
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-stage {
+    width: var(--ch09-stage);
+    aspect-ratio: 1;
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-frame {
+    display: block;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: var(--ch09-to-w, 75%);
+    height: var(--ch09-to-h, 100%);
+    background: var(--ch09-mat-color);
+    box-shadow: var(--ch09-print-shadow);
+    isolation: isolate;
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-shot {
+    position: absolute;
+    inset: var(--ch09-mat);
+    width: auto;
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-shot--still {
+    z-index: 1;
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-shot-print,
+  .ch09-morph[data-mode='morph'] .ch09-shot-media {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    aspect-ratio: auto;
+  }
+
+  /* Between the two photographs the print shows its own warm paper:
+     the past dissolves into light and the present resolves out of it. */
+
+  .ch09-morph[data-mode='morph'] .ch09-shot-pic {
+    will-change: opacity, transform, filter;
+  }
+
+  /* Final state of the morph: the present is showing. GSAP starts from the past. */
+  .ch09-morph[data-mode='morph'] .ch09-shot--then .ch09-shot-pic,
+  .ch09-morph[data-mode='morph'] .ch09-shot--then .ch09-shot-label {
+    opacity: 0;
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-shot-label {
+    position: absolute;
+    top: calc(100% + var(--ch09-mat) + 1rem);
+    left: calc(-1 * var(--ch09-mat));
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .ch09-morph[data-mode='morph'] .ch09-sweep {
+    display: block;
+  }
+}
+
+/* ── After the morph: an honest, quiet column ──────────── */
+
+.ch09-after {
+  display: grid;
+  justify-items: center;
+  margin-top: clamp(5rem, 13vw, 9.5rem);
+}
+
+.ch09-ornament {
+  margin-bottom: clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.ch09-admission {
+  width: 100%;
+  max-width: var(--measure-wide);
+  color: var(--fg);
+}
+
+.ch09-keyline {
+  margin-block: clamp(4.5rem, 12vw, 8.5rem);
+  text-align: center;
+}
+
+.ch09-keyline-part {
+  display: block;
+}
+
+.ch09-keyline-part + .ch09-keyline-part {
+  margin-top: 0.55em;
+  color: var(--accent-strong);
+}
+
+/* The apology: plain, legible, no flourish — a lighter sheet with one fine gold rule. */
+.ch09-apology {
+  --ch09-pad-x: clamp(1.4rem, 5vw, 3.75rem);
+  position: relative;
+  width: 100%;
+  max-width: var(--measure-wide);
+  padding: clamp(2.1rem, 5.5vw, 3.6rem) var(--ch09-pad-x);
+  background: var(--surface-strong);
+  border: 1px solid rgba(201, 164, 106, 0.14);
+  border-radius: 3px;
+}
+
+.ch09-apology::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: var(--ch09-pad-x);
+  right: var(--ch09-pad-x);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-deco) 18%, var(--accent-deco) 82%, transparent);
+}
+
+.ch09-apology-text {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1.62;
+  color: var(--fg);
+  text-wrap: pretty;
+}
+
+.ch09-gratitude {
+  display: grid;
+  gap: var(--space-l);
+  width: 100%;
+  max-width: var(--measure-wide);
+  margin-top: clamp(3.5rem, 9vw, 5.5rem);
+}
+
+.ch09-thanks {
+  color: var(--fg-soft);
+}
+
+.ch09-thanks:first-child {
+  color: var(--fg);
+}

@@ -1,0 +1,539 @@
+/* ==========================================================================
+   CHAPTER 05 — A thousand nights of never giving up  (theme: midnight)
+   A deep indigo sky; a laptop's small glow at its foot; a golden line rising
+   from it through six stars — one for each memory of those years.
+   ========================================================================== */
+
+.ch05 {
+  --ch05-star: #f6ead0;
+  --ch05-cool: #cfe0f2;
+  --ch05-card-bg: linear-gradient(160deg, rgba(31, 35, 74, 0.8), rgba(14, 15, 29, 0.9));
+  overflow: hidden;
+}
+
+/* ── Sky (atmosphere) ─────────────────────────────────────── */
+
+.ch05-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 42% at 50% 58%, rgba(62, 72, 138, 0.22), transparent 72%),
+    linear-gradient(
+      180deg,
+      var(--theme-midnight-bg) 0%,
+      #11132c 14%,
+      #161a3e 44%,
+      #141839 76%,
+      var(--theme-midnight-bg) 100%
+    );
+}
+
+.ch05-starfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.ch05-twinkle {
+  position: absolute;
+  width: var(--s, 3px);
+  height: var(--s, 3px);
+  margin: calc(var(--s, 3px) / -2) 0 0 calc(var(--s, 3px) / -2);
+  border-radius: 50%;
+  background: #fff6e4;
+  box-shadow: 0 0 6px 1px rgba(255, 240, 210, 0.5);
+  opacity: 0.7;
+  animation: ch05-twinkle var(--d, 5s) ease-in-out var(--delay, 0s) infinite;
+}
+
+@keyframes ch05-twinkle {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+}
+
+@keyframes ch05-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ch05[data-awake='false'] .ch05-twinkle,
+.ch05[data-awake='false'] .ch05-star__halo {
+  animation-play-state: paused;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+
+.ch05-inner {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.ch05 .ch05-head {
+  margin-bottom: var(--space-l);
+}
+
+.ch05-intro {
+  max-width: 32ch;
+  color: var(--fg-soft);
+}
+
+/* ── Desktop: the sky stage ───────────────────────────────── */
+
+.ch05-skyframe {
+  container: ch05sky / inline-size;
+  position: relative;
+  width: min(100%, calc(72vh * 16 / 9));
+  width: min(100%, calc(72svh * 16 / 9));
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  text-align: left;
+}
+
+.ch05-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+
+.ch05-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ch05-line--halo {
+  opacity: 0.17;
+}
+
+.ch05-moon {
+  display: block;
+  height: auto;
+}
+
+.ch05-moon--stage {
+  position: absolute;
+  left: 55.5%;
+  top: 5%;
+  width: clamp(36px, 4.6cqi, 64px);
+}
+
+.ch05-note--stage {
+  left: 61%;
+  top: 15%;
+}
+
+/* Stars — real buttons; 48px hit area, glowing core. */
+.ch05-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ch05-star {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border-radius: 50%;
+  color: var(--ch05-star);
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ch05-star__light {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.ch05-star__halo {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 240, 214, 0.5),
+    rgba(233, 196, 128, 0.16) 48%,
+    transparent 74%
+  );
+  transition:
+    transform var(--dur-slow) var(--ease-out),
+    opacity var(--dur-med) var(--ease-out);
+}
+
+.ch05-star[data-twinkle] .ch05-star__halo {
+  animation: ch05-breathe 5.5s ease-in-out infinite;
+}
+
+.ch05-star__ring {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 210, 164, 0.75);
+  opacity: 0;
+  transform: scale(0.55);
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+.ch05-star__core {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  filter: drop-shadow(0 0 3px rgba(255, 236, 200, 0.85));
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.ch05-star:hover .ch05-star__core,
+.ch05-star:focus-visible .ch05-star__core {
+  transform: scale(1.25);
+}
+.ch05-star:hover .ch05-star__halo,
+.ch05-star:focus-visible .ch05-star__halo {
+  transform: scale(1.2);
+}
+
+.ch05-star[aria-pressed='true'] .ch05-star__ring {
+  opacity: 1;
+  transform: none;
+}
+.ch05-star[aria-pressed='true'] .ch05-star__halo {
+  transform: scale(1.5);
+}
+.ch05-star[aria-pressed='true'] .ch05-star__core {
+  color: #fffaf0;
+  transform: scale(1.3);
+}
+
+/* Tiny chart labels: below-right of each star, never past the sky's edge. */
+.ch05-star__label {
+  position: absolute;
+  left: 34px;
+  top: 34px;
+  width: max-content;
+  max-width: 9rem;
+  max-width: min(11rem, calc(100cqi * (1 - var(--fx, 0.5)) - 40px));
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--fg-faint);
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.ch05-star[data-label='l'] .ch05-star__label {
+  left: auto;
+  right: 40px;
+  top: 50%;
+  max-width: 11rem;
+  translate: 0 -50%;
+  text-align: right;
+}
+
+.ch05-star:hover .ch05-star__label,
+.ch05-star:focus-visible .ch05-star__label {
+  color: var(--fg);
+}
+.ch05-star[aria-pressed='true'] .ch05-star__label {
+  color: var(--accent-strong);
+}
+
+/* The memory card — below the sky on narrower stages, in the sky's quiet
+   upper-left when there is room. */
+.ch05-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: min(100%, 34rem);
+  margin: calc(var(--space-l) * -1) 0 0 auto;
+  padding: var(--space-m) var(--space-m) var(--space-2xs);
+  background: var(--ch05-card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  box-shadow: 0 30px 60px -32px rgba(0, 0, 0, 0.75);
+}
+
+.ch05-card__body {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2xs);
+  min-height: 9.5rem;
+}
+
+.ch05-card__title {
+  color: var(--accent);
+}
+
+.ch05 .ch05-card__text,
+.ch05 .ch05-card__hint {
+  font-size: clamp(1.2rem, 2.3cqi, 1.9rem);
+  font-size: clamp(1.2rem, 2.3cqi, var(--step-2));
+}
+
+.ch05-card__hint {
+  font-style: italic;
+  color: var(--fg-soft);
+}
+
+.ch05-card__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3xs);
+  padding-top: var(--space-3xs);
+  border-top: 1px solid var(--line);
+}
+
+.ch05-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  min-height: 44px;
+  padding: 0 0.5em;
+  border-radius: var(--radius-s);
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.ch05-card__btn:hover {
+  color: var(--accent-strong);
+}
+.ch05-card__btn svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+.ch05-card__count {
+  min-width: 3.5ch;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-0);
+  color: var(--fg-faint);
+  text-align: center;
+}
+
+@container ch05sky (min-width: 880px) {
+  .ch05-card {
+    position: absolute;
+    top: 4.5%;
+    left: 2%;
+    width: 45%;
+    margin: 0;
+  }
+}
+
+/* ── Phones: a vertical constellation ─────────────────────── */
+
+.ch05-vwrap {
+  position: relative;
+  width: 100%;
+  max-width: 32rem;
+  margin-top: var(--space-xl);
+  text-align: left;
+}
+
+/* The golden line, drawn in pieces so open memories lengthen it naturally.
+   Its centre sits 28px in: the laptop's screen, every star. */
+.ch05-vseg {
+  position: absolute;
+  left: 27.5px;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(232, 210, 164, 0.8), rgba(201, 164, 106, 0.6));
+}
+
+.ch05-vtop {
+  position: relative;
+  min-height: 62px;
+}
+
+.ch05-vseg--from-screen {
+  top: 29px;
+  background: linear-gradient(180deg, var(--ch05-cool), var(--gold-light));
+}
+
+.ch05-vlaptop {
+  position: relative;
+  z-index: 1;
+  width: 80px;
+  height: auto;
+  margin-left: -12px;
+  overflow: visible;
+}
+
+.ch05-moon--phone {
+  position: absolute;
+  top: 2px;
+  right: 52px;
+  width: 40px;
+}
+
+.ch05-note--phone {
+  top: 0;
+  right: 0;
+}
+
+.ch05-vhint {
+  position: relative;
+  padding: var(--space-xs) 0 var(--space-s) 68px;
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.3;
+  color: var(--fg-soft);
+}
+
+.ch05-vlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch05-vitem {
+  position: relative;
+}
+
+.ch05-vitem:last-child > .ch05-vseg {
+  bottom: auto;
+  height: 24px;
+}
+
+.ch05-vstar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px 0 0;
+  border-radius: var(--radius-s);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ch05-vstar__mark {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 48px;
+  color: var(--ch05-star);
+}
+.ch05-vstar__mark .ch05-star__halo {
+  inset: 0 4px;
+}
+
+.ch05-vstar__glyph {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  filter: drop-shadow(0 0 3px rgba(255, 236, 200, 0.8));
+}
+
+.ch05-vstar__title {
+  flex: 1;
+  min-width: 0;
+  padding-block: 0.55rem;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.25;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+
+.ch05-vstar__chev {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.ch05-vstar[aria-expanded='true'] .ch05-vstar__title {
+  color: var(--accent-strong);
+}
+.ch05-vstar[aria-expanded='true'] .ch05-star__halo {
+  transform: scale(1.35);
+}
+.ch05-vstar[aria-expanded='true'] .ch05-vstar__chev {
+  transform: rotate(180deg);
+}
+
+.ch05-vpanel {
+  overflow: hidden;
+  padding-left: 68px;
+}
+.ch05-vpanel[hidden] {
+  display: none;
+}
+.ch05-vpanel > p {
+  padding: var(--space-3xs) 0 var(--space-m);
+}
+
+/* ── Key line ─────────────────────────────────────────────── */
+
+.ch05-keyline {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-m);
+  margin-top: clamp(5rem, 14vw, 10rem);
+  text-align: center;
+}
+
+.ch05 .ch05-keyline__line {
+  max-width: 24ch;
+}
+
+.ch05-keyline__line--last {
+  color: var(--accent-strong);
+}
+
+/* ── Reduced motion: a still sky ──────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ch05-twinkle,
+  .ch05-star__halo {
+    animation: none !important;
+  }
+}
+html.force-reduced-motion .ch05-twinkle,
+html.force-reduced-motion .ch05-star__halo {
+  animation: none !important;
+}

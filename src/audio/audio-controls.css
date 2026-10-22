@@ -1,0 +1,99 @@
+.audio-controls {
+  position: fixed;
+  right: max(var(--gutter), env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: var(--z-chrome);
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(24, 15, 14, 0.62);
+  border: 1px solid rgba(201, 164, 106, 0.28);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.5);
+  color: var(--cream);
+  --focus: var(--gold-light);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition:
+    opacity 600ms var(--ease-out),
+    transform 600ms var(--ease-out),
+    visibility 0s linear 600ms;
+}
+
+.audio-controls[data-visible] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 600ms var(--ease-out),
+    transform 600ms var(--ease-out),
+    visibility 0s;
+}
+
+.audio-controls__btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.audio-controls__btn:hover {
+  background: rgba(201, 164, 106, 0.18);
+}
+.audio-controls__btn:active {
+  transform: scale(0.93);
+}
+.audio-controls__btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Tiny equaliser that breathes while music plays */
+.audio-controls__bars {
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  display: flex;
+  gap: 2px;
+  height: 6px;
+  align-items: flex-end;
+  transform: translateX(-50%);
+}
+.audio-controls__bars i {
+  width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--gold);
+  opacity: 0.5;
+}
+.audio-controls__bars.is-playing i {
+  opacity: 1;
+  animation: eq 1.4s var(--ease-in-out) infinite alternate;
+}
+.audio-controls__bars.is-playing i:nth-child(2) {
+  animation-delay: -0.5s;
+}
+.audio-controls__bars.is-playing i:nth-child(3) {
+  animation-delay: -0.9s;
+}
+@keyframes eq {
+  from {
+    height: 2px;
+  }
+  to {
+    height: 6px;
+  }
+}
+
+@media print {
+  .audio-controls {
+    display: none !important;
+  }
+}

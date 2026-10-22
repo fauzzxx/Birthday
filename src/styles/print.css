@@ -1,0 +1,33 @@
+/* ==========================================================================
+   PRINT — printing the site produces ONLY the keepsake letter.
+   The letter chapter portals a `.keepsake-print` element into <body>.
+   ========================================================================== */
+
+.keepsake-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm 22mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #1d1412 !important;
+  }
+
+  body > *:not(.keepsake-print) {
+    display: none !important;
+  }
+
+  .keepsake-print {
+    display: block !important;
+  }
+
+  .grain {
+    display: none !important;
+  }
+}

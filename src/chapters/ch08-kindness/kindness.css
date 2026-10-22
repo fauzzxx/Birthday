@@ -1,0 +1,234 @@
+/* ==========================================================================
+   CHAPTER 08 — A heart that chooses kindness.
+   Dawn light from above, an arch, a whisper of geometry, drawn jasmine.
+   Serene: the remembrance is set apart, smaller, and given room.
+   ========================================================================== */
+
+.ch08 {
+  /* Botanicals and the lattice may reach past the edges; never scroll sideways. */
+  overflow-x: clip;
+}
+
+/* ── Atmosphere ───────────────────────────────────────────── */
+
+/* Dawn from the top — eased in so it never meets the thread above with an edge. */
+.ch08 .ch08-dawn {
+  inset: 0 0 auto;
+  height: 120vh;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12rem);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 12rem);
+}
+
+/* Petals fall through the visible part of the scene, wherever the reader is in it. */
+.ch08-air {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ch08-air__view {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.ch08[data-offscreen='true'] .light-leak::before {
+  animation-play-state: paused;
+}
+
+/* ── Stage: arch + lines ──────────────────────────────────── */
+
+.ch08-figure {
+  display: flex;
+  justify-content: center;
+}
+
+.ch08-arch {
+  position: relative;
+  isolation: isolate;
+  width: min(76vw, 19rem);
+}
+
+.ch08-photo {
+  z-index: 2;
+}
+
+/* Original eight-point-star lattice, barely there, fading out from the arch. */
+.ch08-lattice {
+  position: absolute;
+  z-index: 0;
+  left: -30%;
+  top: -12%;
+  width: 160%;
+  height: 124%;
+  max-width: none;
+  color: var(--gold-ink);
+  opacity: 0.09;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(closest-side, #000 35%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 35%, transparent 100%);
+}
+
+/* Botanicals sit behind the photograph and only peek out around it. */
+.ch08-branch,
+.ch08-jasmine {
+  position: absolute;
+  z-index: 1;
+  max-width: none;
+  color: var(--accent-deco);
+  pointer-events: none;
+}
+
+.ch08-branch {
+  left: -16%;
+  top: 3%;
+  width: 50%;
+  opacity: 0.85;
+}
+
+.ch08-jasmine {
+  right: -12%;
+  bottom: -2%;
+  width: 34%;
+  rotate: 8deg;
+  opacity: 0.85;
+}
+
+.ch08-text {
+  margin-top: var(--space-2xl);
+  text-align: center;
+}
+
+.ch08-stage--solo .ch08-text {
+  margin-top: 0;
+}
+
+.ch08-lines {
+  display: grid;
+  gap: clamp(2rem, 5vh, 3.25rem);
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.ch08-line {
+  color: var(--fg);
+}
+
+.ch08-line--first {
+  font-size: var(--step-3);
+  line-height: 1.22;
+  text-wrap: balance;
+}
+
+/* The hidden note's 44px slot, just under the last line. */
+.ch08-note {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: var(--space-s) auto 0;
+}
+
+@media (min-width: 900px) {
+  .ch08-stage:not(.ch08-stage--solo) {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'figure head'
+      'figure text';
+    column-gap: clamp(3rem, 7vw, 8rem);
+  }
+
+  .ch08-stage:not(.ch08-stage--solo) .ch08-head {
+    grid-area: head;
+    padding-top: clamp(1.5rem, 8vh, 5rem);
+  }
+
+  .ch08-figure {
+    grid-area: figure;
+    align-items: flex-start;
+  }
+
+  /* The arch stays with the lines while they arrive (CSS sticky, not a pin). */
+  .ch08-arch {
+    position: sticky;
+    top: clamp(3.5rem, 11vh, 7rem);
+    width: min(100%, 25rem, calc((100vh - 9rem) * 0.6));
+  }
+
+  .ch08-branch {
+    left: -30%;
+    width: 62%;
+  }
+
+  .ch08-jasmine {
+    right: -20%;
+    width: 40%;
+  }
+
+  .ch08-stage:not(.ch08-stage--solo) .ch08-text {
+    grid-area: text;
+    margin-top: 0;
+    text-align: start;
+  }
+
+  .ch08-stage:not(.ch08-stage--solo) .ch08-lines {
+    margin-inline: 0;
+  }
+
+  .ch08-stage:not(.ch08-stage--solo) .ch08-note {
+    margin-inline: -12px 0;
+  }
+}
+
+/* ── Remembrance — set apart, quieter, slower ─────────────── */
+
+.ch08-remembrance {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-s);
+  max-width: 31rem;
+  margin: clamp(6rem, 18vh, 11rem) auto 0;
+  text-align: center;
+}
+
+.ch08-rule {
+  margin-bottom: var(--space-l);
+}
+
+.ch08-memory {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--fg-soft);
+  text-wrap: balance;
+}
+
+.ch08-memory--last {
+  color: var(--fg);
+}
+
+.ch08-prayer {
+  margin-top: var(--space-m);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-0);
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+}
+
+/* ── Key line ─────────────────────────────────────────────── */
+
+.ch08-key {
+  display: grid;
+  justify-items: center;
+  margin-top: clamp(6rem, 18vh, 11rem);
+  text-align: center;
+}
+
+.ch08-key .keyline {
+  margin-inline: auto;
+}

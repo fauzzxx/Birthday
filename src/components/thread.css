@@ -1,0 +1,64 @@
+.thread {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: var(--thread-h, 46vh);
+  min-height: 260px;
+  background: linear-gradient(180deg, var(--thread-from) 0%, var(--thread-from) 8%, var(--thread-to) 92%, var(--thread-to) 100%);
+  overflow: hidden;
+}
+
+.thread--short {
+  --thread-h: 30vh;
+  min-height: 200px;
+}
+.thread--medium {
+  --thread-h: 46vh;
+}
+.thread--long {
+  --thread-h: 80vh;
+  min-height: 420px;
+}
+
+.thread__svg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  transform: translateX(-50%);
+  overflow: visible;
+}
+
+.thread__path {
+  filter: drop-shadow(0 0 3px rgba(233, 196, 128, 0.55));
+}
+
+.thread__bead {
+  filter: drop-shadow(0 0 6px rgba(255, 220, 160, 0.9));
+}
+
+.thread__line {
+  position: relative;
+  z-index: 1;
+  max-width: min(24ch, calc(100vw - 2 * var(--gutter)));
+  padding: 0.35em 0.9em;
+  font-family: var(--font-hand);
+  font-size: var(--step-2);
+  line-height: 1.25;
+  text-align: center;
+  color: var(--ink-soft);
+  background: radial-gradient(closest-side, var(--thread-mid, rgba(0, 0, 0, 0)) 40%, transparent);
+}
+
+.thread--dark .thread__line {
+  color: var(--cream-soft);
+}
+
+/* Keep the quiet line legible as the background shifts underneath it. */
+.thread--light .thread__line {
+  --thread-mid: rgba(246, 239, 229, 0.75);
+}
+.thread--dark .thread__line {
+  --thread-mid: rgba(26, 18, 16, 0.7);
+}

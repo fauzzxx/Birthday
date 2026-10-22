@@ -1,0 +1,488 @@
+/* ==========================================================================
+   BASE — reset, typography, layout primitives, buttons, focus.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--theme-night-bg);
+  scroll-padding-top: 0;
+  hanging-punctuation: first last;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--theme-night-bg);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.7;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* `overflow-x: clip` keeps sticky/pinned scenes working while preventing sideways scroll. */
+@supports (overflow: clip) {
+  body {
+    overflow-x: clip;
+  }
+}
+
+img,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+figure,
+blockquote,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+
+::selection {
+  background: rgba(201, 164, 106, 0.38);
+  color: inherit;
+}
+
+/* ── Focus: always visible for keyboard users ─────────────── */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--focus, var(--gold-light));
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* Headings that receive focus after chapter navigation should not show a ring. */
+[tabindex='-1']:focus-visible {
+  outline: none;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY
+   ========================================================================== */
+
+.t-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1.4;
+}
+
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--step-6);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.t-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-5);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.t-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: var(--step-4);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Narrative beats — the story's spoken voice */
+.t-lead {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1.38;
+  text-wrap: pretty;
+}
+
+.t-body {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.75;
+  color: var(--fg-soft);
+  text-wrap: pretty;
+}
+
+.t-hand {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  font-size: var(--step-2);
+  line-height: 1.2;
+}
+
+.t-caption {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--fg-soft);
+}
+
+/* The suggested key line of each chapter — the sentence the chapter exists for. */
+.keyline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--step-3);
+  line-height: 1.26;
+  letter-spacing: -0.005em;
+  color: var(--fg);
+  text-wrap: balance;
+  max-width: 30ch;
+}
+
+.keyline--large {
+  font-size: var(--step-4);
+  line-height: 1.16;
+}
+
+em,
+.t-em {
+  font-style: italic;
+}
+
+.accent {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+.measure-wide {
+  max-width: var(--measure-wide);
+}
+.center {
+  margin-inline: auto;
+}
+.text-center {
+  text-align: center;
+}
+
+.stack > * + * {
+  margin-top: var(--stack-space, var(--space-m));
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* A chapter: full-width scene with generous breathing room. */
+.chapter {
+  position: relative;
+  isolation: isolate;
+  padding-block: var(--section-pad);
+}
+
+.chapter__head {
+  display: grid;
+  gap: var(--space-s);
+  margin-bottom: var(--space-2xl);
+}
+
+.chapter__head--center {
+  justify-items: center;
+  text-align: center;
+}
+
+.chapter__number {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9em;
+}
+
+.chapter__number::after {
+  content: '';
+  width: 2.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-deco), transparent);
+}
+
+.chapter__head--center .chapter__number::before {
+  content: '';
+  width: 2.5rem;
+  height: 1px;
+  background: linear-gradient(270deg, var(--accent-deco), transparent);
+}
+
+.chapter__title:focus {
+  outline: none;
+}
+
+/* Thin decorative rule with a gold diamond, used sparingly. */
+.ornament-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--accent-deco);
+  width: min(14rem, 60%);
+}
+.ornament-rule::before,
+.ornament-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+.ornament-rule > span {
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg);
+  border: 1px solid currentColor;
+}
+
+/* ==========================================================================
+   BUTTONS — tactile, quiet, gold-edged
+   ========================================================================== */
+
+.btn {
+  --btn-fg: var(--fg);
+  --btn-border: var(--accent-deco);
+  --btn-fill: var(--accent-deco);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65em;
+  min-height: 48px;
+  padding: 0.8em 1.7em;
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in srgb, var(--btn-border) 70%, transparent);
+  color: var(--btn-fg);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Gold light sweeping in from below on hover */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--btn-fill);
+  transform: translateY(101%);
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.btn:hover {
+  box-shadow: var(--glow-gold);
+  border-color: var(--btn-border);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+[data-theme='night'] .btn:hover:not(:disabled),
+[data-theme='midnight'] .btn:hover:not(:disabled),
+[data-theme='dusk'] .btn:hover:not(:disabled),
+[data-theme='espresso'] .btn:hover:not(:disabled),
+[data-theme='lamplight'] .btn:hover:not(:disabled),
+[data-theme='burgundy'] .btn:hover:not(:disabled) {
+  color: var(--espresso-deep);
+}
+[data-theme='paper'] .btn:hover:not(:disabled),
+[data-theme='ivory'] .btn:hover:not(:disabled),
+[data-theme='rose'] .btn:hover:not(:disabled),
+[data-theme='dawn'] .btn:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.btn:hover:not(:disabled)::before {
+  transform: translateY(0);
+}
+
+.btn--solid {
+  background: var(--accent-deco);
+  color: var(--espresso-deep);
+  border-color: var(--accent-deco);
+}
+.btn--solid::before {
+  background: var(--gold-light);
+}
+
+.btn--quiet {
+  border-color: transparent;
+  letter-spacing: 0.12em;
+  padding-inline: 1em;
+}
+.btn--quiet::before {
+  display: none;
+}
+.btn--quiet:hover {
+  box-shadow: none;
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+  text-decoration-color: var(--accent-deco);
+}
+
+.btn--icon {
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  letter-spacing: 0;
+}
+
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+/* ==========================================================================
+   PLACEHOLDERS — visible while developing, hidden in the finished site
+   ========================================================================== */
+.placeholder-text {
+  display: inline;
+  font-family: var(--font-body);
+  font-size: 0.82em;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--rose-ink);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(220, 165, 165, 0.18) 0 6px,
+    rgba(220, 165, 165, 0.08) 6px 12px
+  );
+  border: 1px dashed rgba(142, 76, 85, 0.55);
+  border-radius: 6px;
+  padding: 0.12em 0.5em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+[data-theme='night'] .placeholder-text,
+[data-theme='midnight'] .placeholder-text,
+[data-theme='dusk'] .placeholder-text,
+[data-theme='espresso'] .placeholder-text,
+[data-theme='lamplight'] .placeholder-text,
+[data-theme='burgundy'] .placeholder-text {
+  color: var(--rose-light);
+  border-color: rgba(240, 214, 210, 0.5);
+}
+.placeholder-text__hint {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   REDUCED MOTION — CSS animations rest; GSAP scenes branch in code.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html.force-reduced-motion *,
+html.force-reduced-motion *::before,
+html.force-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}

@@ -1,0 +1,271 @@
+/* ==========================================================================
+   PHOTO — real family photographs, treated like prints, not stock images.
+   ========================================================================== */
+
+.photo {
+  position: relative;
+  margin: 0;
+  transform: rotate(var(--tilt, 0deg));
+}
+
+.photo__frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #2a1f1c;
+  isolation: isolate;
+}
+
+.photo__inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.photo__lqip,
+.photo__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo__lqip {
+  filter: blur(16px) saturate(1.1);
+  transform: scale(1.12);
+  transition: opacity 900ms var(--ease-soft);
+}
+
+.photo__img {
+  opacity: 0;
+  transition:
+    opacity 900ms var(--ease-soft),
+    filter 1.4s var(--ease-soft);
+  filter: blur(6px);
+}
+
+.photo[data-state='loaded'] .photo__img {
+  opacity: 1;
+  filter: none;
+}
+.photo[data-state='loaded'] .photo__lqip {
+  opacity: 0;
+}
+
+/* Gentle gold shimmer while loading */
+.photo[data-state='loading'] .photo__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(100deg, transparent 30%, rgba(243, 230, 200, 0.16) 50%, transparent 70%);
+  background-size: 220% 100%;
+  animation: photo-shimmer 1.8s var(--ease-in-out) infinite;
+  pointer-events: none;
+}
+@keyframes photo-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+/* ── Frames ─────────────────────────────────────────────── */
+
+.photo--print {
+  padding: clamp(6px, 0.9vw, 11px);
+  background: var(--paper);
+  box-shadow: var(--shadow-print);
+}
+
+.photo--polaroid {
+  padding: clamp(8px, 1.1vw, 14px) clamp(8px, 1.1vw, 14px) 0;
+  background: var(--paper);
+  box-shadow: var(--shadow-print);
+}
+.photo--polaroid .photo__caption {
+  padding: 0.55em 0.25em 0.75em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.photo--polaroid:not(:has(.photo__caption)) {
+  padding-bottom: clamp(2rem, 4vw, 3.25rem);
+}
+
+.photo--soft .photo__frame {
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-soft);
+}
+
+.photo--arch .photo__frame {
+  border-radius: 999px 999px 14px 14px;
+  box-shadow: var(--shadow-soft);
+}
+
+.photo--oval .photo__frame {
+  border-radius: 50%;
+}
+
+.photo--none .photo__frame {
+  background: transparent;
+}
+
+/* ── Tones ──────────────────────────────────────────────── */
+
+.photo--tone-warm .photo__img {
+  filter: saturate(1.04) sepia(0.06);
+}
+.photo--tone-warm[data-state='loaded'] .photo__img {
+  filter: saturate(1.04) sepia(0.06);
+}
+.photo--tone-warm .photo__frame::before,
+.photo--tone-vintage .photo__frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(120% 80% at 85% 10%, rgba(255, 196, 120, 0.55), transparent 55%),
+    radial-gradient(90% 70% at 0% 100%, rgba(120, 50, 60, 0.35), transparent 60%);
+}
+
+.photo--tone-vintage[data-state='loaded'] .photo__img,
+.photo--tone-vintage .photo__img {
+  filter: sepia(0.22) saturate(0.88) contrast(0.97) brightness(1.02);
+}
+.photo--tone-vintage .photo__frame {
+  box-shadow: inset 0 0 70px rgba(40, 20, 12, 0.5);
+}
+.photo--tone-vintage .photo__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: inset 0 0 clamp(30px, 6vw, 80px) rgba(30, 14, 8, 0.55);
+}
+
+/* ── Caption ────────────────────────────────────────────── */
+
+.photo__caption {
+  margin-top: 0.65em;
+  color: var(--fg-soft);
+}
+.photo__caption--hand {
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+.photo__caption--serif {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+}
+.photo__caption--sans {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+}
+.photo--print .photo__caption {
+  color: var(--ink-soft);
+}
+
+/* ── Open in album ──────────────────────────────────────── */
+
+.photo__open {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  cursor: zoom-in;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0.75rem;
+}
+.photo__open:focus-visible {
+  outline-offset: -4px;
+}
+.photo__open-icon {
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 50%;
+  color: var(--cream);
+  background: rgba(24, 14, 12, 0.55);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+.photo__open:hover .photo__open-icon,
+.photo__open:focus-visible .photo__open-icon {
+  opacity: 1;
+  transform: none;
+}
+@media (hover: none) {
+  .photo__open-icon {
+    opacity: 0.85;
+    transform: none;
+  }
+}
+
+/* ── Error & placeholder ────────────────────────────────── */
+
+.photo__error,
+.photo__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--ink-soft);
+  background: var(--linen);
+  font-size: var(--step--1);
+}
+.photo__error-sprig,
+.photo__placeholder-sprig {
+  width: 44px;
+  height: 64px;
+  color: var(--gold-ink);
+  opacity: 0.8;
+}
+
+.photo--placeholder .photo__frame {
+  background: transparent;
+}
+.photo__placeholder {
+  background: repeating-linear-gradient(-45deg, rgba(220, 165, 165, 0.14) 0 8px, rgba(246, 239, 229, 0.9) 8px 16px);
+  outline: 1.5px dashed rgba(142, 76, 85, 0.6);
+  outline-offset: -8px;
+}
+.photo__placeholder-label {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--step--2);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rose-ink);
+}
+.photo__placeholder-hint {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-0);
+  line-height: 1.35;
+  color: var(--ink);
+  max-width: 22ch;
+}
+.photo__placeholder-key {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+}

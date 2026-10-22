@@ -96,12 +96,12 @@
   }
 }
 
-.ch13-top .chapter__head {
+.ch13-heading {
   margin-bottom: clamp(1.25rem, 3vw, 2rem);
 }
 
 .ch13-greeting {
-  max-width: 14ch;
+  max-width: 100%;
   margin-inline: auto;
   color: var(--gold-light);
   text-shadow: 0 0 0.5em rgba(233, 196, 128, 0.24);
@@ -124,7 +124,7 @@
 
 .ch13-cake-figure {
   position: relative;
-  width: min(100%, 27rem);
+  width: min(100%, 30rem);
   margin: 0;
 }
 
@@ -410,4 +410,44 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(233, 196, 128, 0.38), transparent 68%);
   animation: ch13-breathe 4.8s var(--ease-in-out) infinite alternate;
+}
+
+/* ── Things I have never said out loud ─────────────────────── */
+.ch13-unsaid {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-l);
+  max-width: 38rem;
+  margin: clamp(5rem, 14vh, 9rem) auto clamp(4rem, 10vh, 7rem);
+  text-align: center;
+}
+
+.ch13-unsaid__title {
+  color: var(--gold);
+}
+
+.ch13-unsaid__list {
+  display: grid;
+  gap: clamp(1.75rem, 5vh, 3rem);
+  margin: 0;
+}
+
+.ch13-unsaid__item {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-2);
+  line-height: 1.35;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+.ch13-unsaid__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  box-shadow: 0 0 12px rgba(233, 196, 128, 0.9);
 }

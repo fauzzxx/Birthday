@@ -230,19 +230,8 @@ export function LittleWorld() {
           <div className="ch04-scene" ref={sceneRef} data-visible={inView}>
             <div className="ch04-glow" aria-hidden="true" />
 
-            <div className="ch04-wall">
-              {frames.map((f) => (
-                <WallFrame
-                  key={f.slot}
-                  id={f.id}
-                  slot={f.slot}
-                  tilt={f.tilt}
-                  depth={f.depth}
-                  sizes="(min-width: 900px) 22vw, 46vw"
-                />
-              ))}
-            </div>
-
+            {/* DOM order = phone reading/focus order (TV, its knob, then the prints);
+                on desktop the wall is layered behind the room with z-index. */}
             <div className="ch04-room">
               <div className="ch04-cabinet" aria-hidden="true">
                 <span className="ch04-cabinet__sheen" />
@@ -301,6 +290,19 @@ export function LittleWorld() {
                 <span className="ch04-power__knob" aria-hidden="true" />
                 <span>{on ? littleWorld.tvOff : littleWorld.tvOn}</span>
               </button>
+            </div>
+
+            <div className="ch04-wall">
+              {frames.map((f) => (
+                <WallFrame
+                  key={f.slot}
+                  id={f.id}
+                  slot={f.slot}
+                  tilt={f.tilt}
+                  depth={f.depth}
+                  sizes="(min-width: 900px) 22vw, 46vw"
+                />
+              ))}
             </div>
           </div>
         </div>

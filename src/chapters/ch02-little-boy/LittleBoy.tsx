@@ -15,7 +15,7 @@ import './little-boy.css';
  *
  * A child's room at night. In the dark, a lamp switches on: a warm pool of
  * light opens behind the old family portrait and its circle grows until the
- * whole photograph is there (scrubbed on desktop, played once on phones). On
+ * whole photograph is there (scrubbed by scroll on every screen size). On
  * a mouse, the light leans a little toward the cursor. Beside it the nights
  * are told plainly, and the things she did light up one by one, like small
  * lamps along a cord. Then the key line, on its own.
@@ -53,24 +53,19 @@ export function LittleBoy() {
           delete print.dataset.lamp;
         });
 
-        if (desktop) {
-          const lamp: gsap.core.Timeline = gsap.timeline({
-            defaults: { ease: 'none' },
-            scrollTrigger: { trigger: print, start: 'top 85%', end: 'center 42%', scrub: 0.8 },
-            onUpdate: () => setLamp(lamp.progress() >= 0.999),
-          });
-          lamp
-            .fromTo(pool, { opacity: 0, scale: 0.45 }, { opacity: 1, scale: 1, duration: 0.8 }, 0)
-            .fromTo(print, { '--r': '-32%' }, { '--r': '105%', duration: 1, ease: 'power1.in' }, 0);
-        } else {
-          gsap
-            .timeline({
-              scrollTrigger: { trigger: print, start: 'top 78%' },
-              onComplete: () => setLamp(true),
-            })
-            .fromTo(pool, { opacity: 0, scale: 0.45 }, { opacity: 1, scale: 1, duration: 2.2, ease: 'power2.out' }, 0)
-            .fromTo(print, { '--r': '-32%' }, { '--r': '105%', duration: 2.6, ease: 'power2.inOut' }, 0.15);
-        }
+        // Scrubbed on every screen size: the light grows as the portrait scrolls in
+        // and dims again when scrolling back up. On phones it is fully lit by the
+        // time the print's centre reaches the middle of the screen.
+        const lamp: gsap.core.Timeline = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: desktop
+            ? { trigger: print, start: 'top 85%', end: 'center 42%', scrub: 0.8 }
+            : { trigger: print, start: 'top 88%', end: 'center 50%', scrub: 0.6 },
+          onUpdate: () => setLamp(lamp.progress() >= 0.999),
+        });
+        lamp
+          .fromTo(pool, { opacity: 0, scale: 0.45 }, { opacity: 1, scale: 1, duration: 0.8 }, 0)
+          .fromTo(print, { '--r': '-32%' }, { '--r': '105%', duration: 1, ease: 'power1.in' }, 0);
 
         // Gentle parallax of the whole print, so the photograph itself is never cropped.
         const drift = desktop ? 4 : 2.5;
@@ -98,20 +93,19 @@ export function LittleBoy() {
       }
 
       // ── What she did: each line lights up like a small lamp ──
+      // Scrubbed on every screen size. On phones the last line is fully lit by the
+      // time the list's centre is just below mid-screen, so it is always readable
+      // once it is where she reads it (unlit lines stay faintly legible anyway).
       const care = careRef.current;
       const lines = care ? Array.from(care.querySelectorAll<HTMLElement>('.ch02-care__line')) : [];
       if (care && lines.length) {
         const lightUp = gsap.timeline({
           scrollTrigger: desktop
             ? { trigger: care, start: 'top 76%', end: 'bottom 54%', scrub: 0.8 }
-            : { trigger: care, start: 'top 82%' },
+            : { trigger: care, start: 'top 85%', end: 'center 55%', scrub: 0.6 },
         });
         lines.forEach((line, i) => {
-          lightUp.from(
-            line,
-            { '--lit': 0, duration: desktop ? 1 : 0.9, ease: desktop ? 'none' : 'power2.out' },
-            i * (desktop ? 1 : 0.55),
-          );
+          lightUp.from(line, { '--lit': 0, duration: 1, ease: 'none' }, i);
         });
       }
 

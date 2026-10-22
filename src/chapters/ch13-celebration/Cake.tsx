@@ -204,7 +204,7 @@ function lightUp(root: HTMLElement, done: () => void) {
     return;
   }
   gsap.set(flames, { opacity: 1, scale: 0, transformOrigin: '50% 100%' });
-  gsap.set(halos, { opacity: 0, scale: 0.3, transformOrigin: '50% 50%' });
+  if (halos.length) gsap.set(halos, { opacity: 0, scale: 0.3, transformOrigin: '50% 50%' });
   const tl = gsap.timeline({ delay: 0.25, onComplete: done });
   flames.forEach((flame, i) => {
     const t = i * 0.36;
@@ -234,7 +234,7 @@ function blowOut(root: HTMLElement, done: () => void) {
     return;
   }
   gsap.set(flames, { transformOrigin: '50% 100%' });
-  gsap.set(halos, { transformOrigin: '50% 50%' });
+  if (halos.length) gsap.set(halos, { transformOrigin: '50% 50%' });
   const tl = gsap.timeline({ onComplete: done });
   // A breath: every flame leans and stretches away from it.
   tl.to(flames, { rotation: 24, scaleY: 1.32, scaleX: 0.76, x: 1.5, duration: 0.55, ease: 'power2.out', stagger: 0.04 }, 0);

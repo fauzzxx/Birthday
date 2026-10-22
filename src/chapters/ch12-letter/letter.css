@@ -32,7 +32,7 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(56rem 34rem at 50% 24rem, rgba(150, 56, 84, 0.42), transparent 72%),
+    radial-gradient(60rem 38rem at 50% clamp(26rem, 18rem + 22vw, 42rem), rgba(150, 56, 84, 0.42), transparent 72%),
     linear-gradient(180deg, rgba(10, 2, 6, 0.32), transparent 16%, transparent 86%, rgba(10, 2, 6, 0.3)),
     var(--ch12-velvet);
   background-size:
@@ -49,6 +49,11 @@
   pointer-events: none;
   -webkit-mask-image: linear-gradient(180deg, #000 65%, transparent);
   mask-image: linear-gradient(180deg, #000 65%, transparent);
+}
+
+/* The stage already leaves air above the envelope (for the flap and the rising letter). */
+.ch12-heading {
+  margin-bottom: clamp(3rem, 6vw, 3.75rem);
 }
 
 /* ── The desk: envelope stage and paper share one grid cell ── */
@@ -80,7 +85,7 @@
   width: calc(var(--ch12-env-w) * 2.3);
   aspect-ratio: 1;
   left: calc(50% - var(--ch12-env-w) * 1.15);
-  top: calc(var(--ch12-env-w) * -0.44);
+  top: calc(var(--ch12-env-w) * -0.48);
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
@@ -97,7 +102,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: calc(var(--ch12-env-w) * 0.4);
+  padding-top: calc(var(--ch12-env-w) * 0.36);
 }
 
 .ch12-desk[data-phase='open'] .ch12-stage {
@@ -382,10 +387,13 @@
   margin-bottom: clamp(0.85rem, 2.5vw, 1.5rem);
 }
 
-/* Reserve room under the tucked photograph where it overlaps the paper's corner. */
-.ch12-paper--photo .ch12-head {
-  min-height: calc(var(--ch12-photo-w) * 1.42 - var(--ch12-photo-lift) - var(--ch12-pad-top) + 0.75rem);
-  padding-right: max(0px, calc(var(--ch12-photo-w) - var(--ch12-pad-x)));
+/* Room for the tucked photograph where it rests on the paper's corner:
+   the salutation and first lines simply wrap around it. */
+.ch12-photo-room {
+  float: right;
+  width: max(0px, calc(var(--ch12-photo-w) - var(--ch12-pad-x) + 0.5rem));
+  height: max(0px, calc(var(--ch12-photo-w) * 1.42 - var(--ch12-photo-lift) - var(--ch12-pad-top) + 0.5rem));
+  margin-left: 0.75rem;
 }
 
 .ch12-salutation {
@@ -471,9 +479,8 @@
     right: auto;
     left: calc(50% + var(--ch12-paper-w) / 2 + 1.75rem);
   }
-  .ch12-paper--photo .ch12-head {
-    min-height: 0;
-    padding-right: 0;
+  .ch12-photo-room {
+    display: none;
   }
 }
 
@@ -483,6 +490,12 @@
   display: flex;
   justify-content: center;
   margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+/* A quiet button has no gold fill on hover, so keep its text light on the velvet
+   (the shared dark-theme hover rule would turn it espresso). */
+.ch12 .ch12-keep-btn.btn--quiet:hover:not(:disabled) {
+  color: var(--fg);
 }
 
 /* ── Keepsake view (native dialog) ───────────────────────── */

@@ -1,5 +1,5 @@
 import { useId, useRef, type ReactNode } from 'react';
-import { gsap, ScrollTrigger } from '../../lib/gsap';
+import { gsap } from '../../lib/gsap';
 import { useScene } from '../../lib/scene';
 
 /** Centres of the two lights (hers, then his) in the 560 × 220 drawing. */
@@ -20,7 +20,7 @@ interface LightPassageProps {
  * golden filament. First a pulse travels from hers to his (all the years she
  * cared for him) and his light wakes; then, as the key line appears, a pulse
  * travels back and her light grows warmer (now he gives the comfort back).
- * Desktop: tied to scroll. Mobile: two quiet on-enter moments.
+ * Tied to scroll on every screen size (phones finish the passage sooner, see below).
  * Reduced motion: both lights rest, softly lit. Abstract and unlabelled.
  */
 export function LightPassage({ children }: LightPassageProps) {
@@ -134,28 +134,19 @@ export function LightPassage({ children }: LightPassageProps) {
           at + 2.7,
         );
 
-    if (desktop) {
-      // One scrubbed passage: out while the drawing rises into view, back once the key line has appeared.
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: light, start: 'top 85%', endTrigger: key, end: 'bottom 50%', scrub: 1 },
-      });
-      giveOut(tl, 0.2);
-      giveBack(tl, 5.6);
-      tl.to({}, { duration: 0.4 });
-    } else {
-      const outTl = giveOut(gsap.timeline({ paused: true }), 0);
-      const backTl = giveBack(gsap.timeline({ paused: true }), 0);
-      ScrollTrigger.create({ trigger: light, start: 'top 75%', once: true, onEnter: () => outTl.play() });
-      ScrollTrigger.create({
-        trigger: key,
-        start: 'top 78%',
-        once: true,
-        onEnter: () => {
-          if (outTl.progress() === 1) backTl.play();
-          else outTl.eventCallback('onComplete', () => backTl.play()).play();
-        },
-      });
-    }
+    // One scrubbed passage: out while the drawing rises into view, back once the key line has appeared.
+    // Scrolling up plays it backwards. On phones the key line beneath the drawing runs to many
+    // lines, so the passage is measured on the drawing itself and completes while the drawing is
+    // still in the upper part of the screen; the back pulse begins just after the key line starts
+    // to appear (about 45% → 52% of the way through).
+    const tl = gsap.timeline({
+      scrollTrigger: desktop
+        ? { trigger: light, start: 'top 85%', endTrigger: key, end: 'bottom 50%', scrub: 1 }
+        : { trigger: light, start: 'top 85%', end: 'bottom 40%', scrub: 0.8 },
+    });
+    giveOut(tl, 0.2);
+    giveBack(tl, 5.6);
+    tl.to({}, { duration: 0.4 });
 
     // The key line arrives on its own time (never scrubbed, so it is never left half-visible).
     gsap.fromTo(

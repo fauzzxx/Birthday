@@ -102,8 +102,8 @@ function stageOpening(desk: HTMLElement, tucked: HTMLElement | null, done: () =>
 
   const tl = gsap.timeline({ onComplete: done });
 
-  // 0 — the button steps back.
-  if (actions) tl.to(actions, { autoAlpha: 0, y: 10, duration: 0.35, ease: 'power2.out' }, 0);
+  // 0 — the button steps back (opacity only, so keyboard focus stays put until the letter takes it).
+  if (actions) tl.to(actions, { opacity: 0, y: 10, duration: 0.35, ease: 'power2.out' }, 0);
 
   // 1 — the seal lifts a little, cracks, and its two halves fall away.
   if (seal) tl.to(seal, { y: -H * 0.015, scale: 1.05, duration: 0.3, ease: 'power2.out' }, 0);
@@ -147,14 +147,14 @@ function stageOpening(desk: HTMLElement, tucked: HTMLElement | null, done: () =>
   if (sheetTop) gsap.set(sheetTop, { rotationX: -180, transformOrigin: '50% 100%' });
   if (sheetBot) gsap.set(sheetBot, { rotationX: 180, transformOrigin: '50% 0%' });
   if (shades.length) gsap.set(shades, { opacity: 1 });
-  const riseY = envR.top + H * 0.08 - sheetR.bottom;
+  const riseY = envR.top + H * 0.1 - sheetR.bottom;
   const settleY = paperR.top + h - sheetR.top; // middle panel lands one panel below the paper's top
   tl.to(sheet, { y: riseY, duration: 0.6, ease: 'power2.out' }, 0.98);
   tl.set(sheet, { zIndex: 10 }, 1.58);
   tl.to(sheet, { y: settleY, duration: 0.62, ease: 'power3.inOut' }, 1.58);
 
-  // 5 — …and unfolds, its faint lines of writing coming into view.
-  const unfold = 2.12;
+  // 5 — …and unfolds as it lands, its faint lines of writing coming into view.
+  const unfold = 2.04;
   if (sheetTop) tl.to(sheetTop, { rotationX: 0, duration: 0.72, ease: 'power2.inOut' }, unfold);
   if (sheetBot) tl.to(sheetBot, { rotationX: 0, duration: 0.72, ease: 'power2.inOut' }, unfold + 0.06);
   if (sheetShadow) tl.to(sheetShadow, { top: -h, bottom: -h, duration: 0.72, ease: 'power2.inOut' }, unfold);
@@ -193,7 +193,7 @@ function bringIntoView(desk: HTMLElement): gsap.core.Tween | null {
   const top = desk.getBoundingClientRect().top;
   const vh = window.innerHeight;
   const want = Math.min(vh * 0.1, 96);
-  if (top >= want - 24 && top <= vh * 0.32) return null;
+  if (top >= want - 24 && top <= vh * 0.25) return null;
   return gsap.to(window, {
     scrollTo: { y: window.scrollY + top - want, autoKill: true },
     duration: 0.9,
@@ -346,7 +346,7 @@ export function Letter() {
       </div>
 
       <div className="container ch12-content">
-        <ChapterHeading number={12} align="center" />
+        <ChapterHeading number={12} align="center" className="ch12-heading" />
 
         <div ref={readRef} className="ch12-read">
           <div ref={deskRef} className="ch12-desk" data-phase={phase}>
@@ -370,8 +370,10 @@ export function Letter() {
 
             <div className="ch12-paperwrap" hidden={phase === 'sealed'}>
               <div className="ch12-paper-shadow" aria-hidden="true" />
-              <article id={PAPER_ID} className={`ch12-paper${showPhoto ? ' ch12-paper--photo' : ''}`}>
+              <article id={PAPER_ID} className="ch12-paper">
                 <div className="ch12-paper-body">
+                  {/* Where the photograph rests on the paper's corner, the first lines wrap around it. */}
+                  {showPhoto && <span className="ch12-photo-room" aria-hidden="true" />}
                   <div className="ch12-head">
                     <p ref={salutationRef} className="ch12-salutation" tabIndex={-1}>
                       {letter.salutation}
@@ -407,7 +409,7 @@ export function Letter() {
 
           {phase === 'open' && (
             <div className="ch12-after ch12-reveal">
-              <button type="button" className="btn ch12-keep-btn" aria-haspopup="dialog" onClick={openKeepsake}>
+              <button type="button" className="btn btn--quiet ch12-keep-btn" aria-haspopup="dialog" onClick={openKeepsake}>
                 {letter.keepsakeLabel}
               </button>
             </div>

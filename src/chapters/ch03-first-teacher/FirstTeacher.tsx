@@ -19,9 +19,9 @@ import './first-teacher.css';
  * the next ruled lines; then the margin boxes are ticked, one by one, in a
  * teacher's red. Learning, made visible.
  *
- * Mobile shows the notebook already open and plays a short version once on
- * enter. Reduced motion shows the finished page: clean letters, key line
- * written, every box ticked.
+ * Mobile shows the notebook already open and, without pinning, scrubs the same
+ * lesson by scroll as the notebook passes up through the screen. Reduced motion
+ * shows the finished page: clean letters, key line written, every box ticked.
  */
 
 /* ── Static content derived from the story ───────────────────────────── */
@@ -148,17 +148,21 @@ function waypoints(rig: Rig, writeAngle: number) {
 }
 
 /**
- * The writing itself — shared by the pinned desktop scrub and the mobile
- * on-enter timeline. `k` scales every duration. Every tween is a fromTo, so the
- * scrub stays exact when scrolled backwards or re-measured.
+ * The writing itself — shared by the pinned desktop scrub and the unpinned
+ * mobile scrub. `k` scales every duration. Every tween is a fromTo, so the
+ * scrub stays exact when scrolled backwards or re-measured. `blur` softens the
+ * shaky first attempts with a filter (desktop only: phones scrub transforms and
+ * opacity alone).
  */
 function writePage(
   tl: gsap.core.Timeline,
   rig: Rig,
-  opts: { from: Waypoint; at: number; k: number; writeAngle: number },
+  opts: { from: Waypoint; at: number; k: number; writeAngle: number; blur: boolean },
 ) {
   const { k } = opts;
   const wp = waypoints(rig, opts.writeAngle);
+  const shakyBlur = opts.blur ? { filter: SHAKY_BLUR } : {};
+  const clearBlur = opts.blur ? { filter: 'blur(0px)' } : {};
   let t = opts.at;
   let prev = opts.from;
 
@@ -186,7 +190,7 @@ function writePage(
         autoAlpha: 0,
         rotation: (i: number) => WOBBLE[i]?.rotation ?? 0,
         y: (i: number) => WOBBLE[i]?.y ?? 0,
-        filter: SHAKY_BLUR,
+        ...shakyBlur,
       },
       { autoAlpha: SHAKY_ALPHA, duration: 0.45 * k, stagger: 0.08 * k, ease: 'power1.out' },
       t + 0.35 * k,
@@ -194,12 +198,13 @@ function writePage(
   }
 
   // 2 — the pencil goes over each letter, and each one settles: clear and straight.
+  // (Timed so each settle starts after that letter's shaky attempt has appeared.)
   rig.inks.forEach((ink, i) => {
-    move(wp.glyph(i), i === 0 ? 0.8 : 0.42);
+    move(wp.glyph(i), i === 0 ? 1.1 : 0.42);
     tl.fromTo(
       ink,
-      { autoAlpha: SHAKY_ALPHA, rotation: WOBBLE[i]?.rotation ?? 0, y: WOBBLE[i]?.y ?? 0, filter: SHAKY_BLUR },
-      { autoAlpha: 1, rotation: 0, y: 0, filter: 'blur(0px)', duration: 0.55 * k, ease: 'power2.out', immediateRender: false },
+      { autoAlpha: SHAKY_ALPHA, rotation: WOBBLE[i]?.rotation ?? 0, y: WOBBLE[i]?.y ?? 0, ...shakyBlur },
+      { autoAlpha: 1, rotation: 0, y: 0, ...clearBlur, duration: 0.55 * k, ease: 'power2.out', immediateRender: false },
       t - 0.22 * k,
     );
   });
@@ -327,12 +332,16 @@ export function FirstTeacher() {
         0.5,
       );
       // …and the lesson begins.
-      writePage(tl, rig, { from: wp.lift, at: 1.9, k: 1, writeAngle: WRITE_ANGLE.desktop });
+      writePage(tl, rig, { from: wp.lift, at: 1.9, k: 1, writeAngle: WRITE_ANGLE.desktop, blur: true });
       return;
     }
 
-    // Mobile: the notebook is already open. One short lesson when it arrives.
+    // Mobile: the notebook is already open; no pin. The same lesson is tied to
+    // scroll as the notebook passes up through the screen, forwards and backwards.
+
+    // Her photo settles into place as it scrolls in.
     if (prints.length) {
+      const printsBox = el.querySelector<HTMLElement>('.ch03-prints') ?? prints[0];
       gsap.fromTo(
         prints,
         { autoAlpha: 0, y: 24, rotation: -5 },
@@ -340,19 +349,34 @@ export function FirstTeacher() {
           autoAlpha: 1,
           y: 0,
           rotation: 0,
-          duration: 1.1,
+          duration: 1,
           stagger: 0.18,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: prints[0], start: 'top 85%' },
+          ease: 'power2.out',
+          scrollTrigger: { trigger: printsBox, start: 'top 88%', end: 'center 58%', scrub: 0.7 },
         },
       );
     }
-    const tl = gsap.timeline({ scrollTrigger: { trigger: book, start: 'top 72%', once: true } });
+
+    // The writing starts as the top of the page comes into view (the practice row is
+    // about a quarter of the way down the page) and is finished — pencil set down —
+    // when the notebook's centre is a little above mid-screen. On a 360×640 phone
+    // that leaves the whole page on screen at the end (~480px of scroll in all).
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: book,
+        start: 'top 82%',
+        end: 'center 42%',
+        scrub: 0.7,
+        invalidateOnRefresh: true,
+      },
+    });
     writePage(tl, rig, {
       from: waypoints(rig, WRITE_ANGLE.mobile).rest,
       at: 0,
-      k: 0.62,
+      k: 1,
       writeAngle: WRITE_ANGLE.mobile,
+      blur: false,
     });
   });
 

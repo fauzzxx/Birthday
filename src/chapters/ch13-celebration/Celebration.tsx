@@ -26,7 +26,9 @@ import './celebration.css';
  * and settle as she scrolls, one last large photograph, and the closing words
  * — given room and stillness — before the story can begin again.
  *
- * Mobile: no scrubs, simple arrivals, a tidy two-column collage.
+ * Before the cake, "Things I have never said out loud": each line lights up as it
+ * scrolls to the middle of the screen, like a candle being lit.
+ * Mobile: the same scroll-linked arrivals, with a tidy two-column collage.
  * Reduced motion: everything is static and visible; candles start lit.
  */
 
@@ -37,6 +39,10 @@ interface Placed {
   w: number;
   tilt: number;
 }
+
+/** The greeting, with its first two words kept together so narrow screens break before the name. */
+const NBSP = String.fromCharCode(160);
+const GREETING = celebration.greeting.replace(/^([^ ]+) ([^ ]+)/, `$1${NBSP}$2`);
 
 const TILTS = [-3.5, 2.5, -2, 3, 4, -1.5, 2, -3, 1.5, -2.5, 3.5, -1];
 const JITTER = [2, 0, 3.5, 0.5, 2.5, 0, 3, 1, 2, 0.5, 1.5, 3];
@@ -143,17 +149,41 @@ export function Celebration() {
           tl.from(print, { x: s.x, y: s.y, rotation: s.r, opacity: 0, duration: 1, ease: 'power2.out' }, i * 0.14);
         });
       } else {
+        // Phones: each print drifts up and settles as it scrolls into view.
         prints.forEach((print, i) => {
           gsap.from(print, {
             opacity: 0,
-            y: 34,
-            rotation: i % 2 ? 2.5 : -2.5,
-            duration: 1.1,
-            scrollTrigger: { trigger: print, start: 'top 92%' },
+            y: 70,
+            x: i % 2 ? 24 : -24,
+            rotation: i % 2 ? 7 : -7,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: print, start: 'top 98%', end: 'top 62%', scrub: 0.6 },
           });
         });
       }
     }
+
+    // Things never said out loud: each line lights as it reaches the middle of the screen.
+    gsap.utils.toArray<HTMLElement>('.ch13-unsaid__item', root).forEach((item) => {
+      gsap.fromTo(
+        item,
+        { opacity: 0.16, y: 18 },
+        {
+          opacity: 1,
+          y: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: item, start: 'top 88%', end: 'top 58%', scrub: 0.6 },
+        },
+      );
+      const dot = item.querySelector('.ch13-unsaid__dot');
+      if (dot) {
+        gsap.fromTo(
+          dot,
+          { scale: 0.3, opacity: 0.2 },
+          { scale: 1, opacity: 1, ease: 'none', scrollTrigger: { trigger: item, start: 'top 80%', end: 'top 58%', scrub: 0.6 } },
+        );
+      }
+    });
 
     const finalPhoto = one('.ch13-final');
     if (finalPhoto) {
@@ -204,10 +234,26 @@ export function Celebration() {
             <span className="ch13-hairline" />
             <span className="ch13-bead" />
           </div>
-          <ChapterHeading number={13} size="headline" align="center" />
-          <SplitReveal as="p" by="words" text={celebration.greeting} className="t-display ch13-greeting" delay={0.25} />
+          <ChapterHeading number={13} size="headline" align="center" className="ch13-heading" />
+          <SplitReveal as="p" by="words" text={GREETING} className="t-display ch13-greeting" delay={0.25} />
           <p className="t-lead ch13-message">{celebration.message}</p>
         </div>
+
+        {celebration.unsaid.items.length > 0 && (
+          <section className="ch13-unsaid" aria-labelledby="ch13-unsaid-title">
+            <h3 id="ch13-unsaid-title" className="t-eyebrow ch13-unsaid__title">
+              {celebration.unsaid.title}
+            </h3>
+            <ul className="ch13-unsaid__list" role="list">
+              {celebration.unsaid.items.map((line) => (
+                <li key={line} className="ch13-unsaid__item">
+                  <span className="ch13-unsaid__dot" aria-hidden="true" />
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <CakeScene />
 
